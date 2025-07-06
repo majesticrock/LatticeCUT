@@ -1,9 +1,11 @@
 #pragma once
-#include <mrock/utility/IsComplex.hpp>
 #include "GlobalDefinitions.hpp"
+#include <mrock/utility/UnderlyingFloatingPoint.hpp>
+#include <mrock/utility/IsComplex.hpp>
 #include <vector>
 #include <complex>
 #include <random>
+#include <limits>
 
 namespace LatticeCUT {
 enum ComplexAttributePolicy { Magnitude, SeperateRealAndImaginary };

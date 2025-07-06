@@ -22,8 +22,12 @@ include(${CMAKE_CURRENT_SOURCE_DIR}/../../PhdUtility/cmake/mrock-information.cma
 add_executable(latticecut 
     sources/LatticeCUT.cpp
 )
+target_sources(latticecut PRIVATE
+    sources/LatticeCUT/DOSModel.cpp
+    sources/LatticeCUT/ModeHelper.cpp
+)
 
 SET_COMPILER_FLAGS(latticecut)
 
-target_link_libraries(latticecut PRIVATE Dispatch Fourier ${mrock_LIBRARIES})
+target_link_libraries(latticecut PRIVATE OpenMP::OpenMP_CXX ${mrock_LIBRARIES})
 target_include_directories(latticecut PRIVATE ${mrock_INCLUDE_DIRS})

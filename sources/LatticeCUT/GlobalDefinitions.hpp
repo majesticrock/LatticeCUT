@@ -11,20 +11,23 @@ namespace LatticeCUT {
     using l_float = double;
     using l_complex = std::complex<l_float>;
 
-    constexpr h_complex imaginary_unit{0., 1.};
-    constexpr h_float pi   = h_float(M_PI); // pi
+    constexpr l_complex imaginary_unit{0., 1.};
+    constexpr l_float pi   = l_float(M_PI); // pi
 
-    constexpr h_float fermi_function(h_float energy, h_float beta) noexcept {
-        if (beta == std::numeric_limits<h_float>::infinity()) {
-            return (energy != 0 ? (energy < 0 ? h_float{1} : h_float{}) : h_float{0.5} );
+    constexpr l_float fermi_function(l_float energy, l_float beta) noexcept {
+        if (beta == std::numeric_limits<l_float>::infinity()) {
+            return (energy != 0 ? (energy < 0 ? l_float{1} : l_float{}) : l_float{0.5} );
         }
         return 1. / (1. + std::exp(beta * energy));
     }
 
     template<class... Args>
-    h_float norm(Args... args) {
+    l_float norm(Args... args) {
         return std::sqrt((... + (args * args)));
     }
+
+    constexpr l_float SQRT_PRECISION = 2.384185791015625e-07;
+	constexpr l_float PRECISION = 5.684341886080802e-14;
 
     /* This function abuses the structure of our desired precision:
 	*  The mantissa is empty, i.e., we can solely rely on the exponent.
