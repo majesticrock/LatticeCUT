@@ -6,7 +6,7 @@
 
 namespace LatticeCUT {
     DOSModel::DOSModel(mrock::utility::InputFileReader& input) 
-        : g_in{input.getDouble("phonon_coupling")},
+        : phonon_coupling{input.getDouble("phonon_coupling")},
         local_interaction{input.getDouble("local_interaction")},
         band_width{input.getDouble("band_width")},
         delta_epsilon{band_width / static_cast<l_float>(input.getInt("N") - 1)},
@@ -17,11 +17,10 @@ namespace LatticeCUT {
         dos_name{input.getString("dos")},
         density_of_states{selector.select_dos(dos_name, N, band_width)},
         min_energy{selector.get_min_energy()},
-        phonon_coupling{g_in / density_of_states[static_cast<int>((fermi_energy + min_energy) / delta_epsilon)]},
         Delta(decltype(Delta)::FromAllocator([&](int k) -> l_float {
-			const l_float magnitude = (k < 2 * fermi_energy * omega_debye || k > 2 * fermi_energy * omega_debye) ? 0.01 : 0.1;
+			const l_float magnitude = (k < omega_debye || k > omega_debye) ? 0.01 : 0.1;
 			if (k < N) {
-				return magnitude * std::cos(pi * (static_cast<double>(k) / static_cast<double>(N) - 0.5));
+				return magnitude;
 			}
 			return l_float{};
 			}, N))
@@ -53,6 +52,7 @@ namespace LatticeCUT {
         }
 
         this->Delta.fill_with(result, 0.5);
+        //std::cout << step_num << ": " << delta_max() << std::endl;
 		this->Delta.clear_noise(PRECISION);
 		result -= initial_values;
 		++step_num;
@@ -145,7 +145,7 @@ namespace LatticeCUT {
 			};
         
         return dos_name + "/N=" + std::to_string(N) + "/"
-            + "g=" + improved_string(g_in) + "/"
+            + "g=" + improved_string(phonon_coupling) + "/"
             + "U=" + improved_string(local_interaction) + "/"
             + "band_width=" + improved_string(band_width) + "/"
             + "E_F=" + improved_string(fermi_energy) + "/"

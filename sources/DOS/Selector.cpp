@@ -5,11 +5,13 @@
 #include <algorithm>
 
 #include "FreeElectrons.hpp"
+#include "SimpleCubic.hpp"
 
 namespace DOS {
-    std::vector<double> const& Selector::select_dos(const std::string& name, int N, double bandwidth) 
+    std::vector<double> const& Selector::select_dos(const std::string& name, int N, double band_width) 
     {
         const std::string free_electrons_name = "free_electrons";
+        const std::string sc_name = "simple_cubic";
 
         if (dos_ptr) return dos_ptr->get_dos();
 
@@ -18,7 +20,10 @@ namespace DOS {
             // std::isdigit does not seem to work for some reason unbeknownst to me
             if (dimension_str.empty() || !std::all_of(dimension_str.begin(), dimension_str.end(), ::isdigit));
             
-            dos_ptr = std::make_unique<FreeElectrons>(N, bandwidth, std::stoi(dimension_str));
+            dos_ptr = std::make_unique<FreeElectrons>(N, band_width, std::stoi(dimension_str));
+        }
+        else if (name == sc_name) {
+            dos_ptr = std::make_unique<SimpleCubic>(N, band_width);
         }
         else {
             throw std::invalid_argument("DOS '" + name + "' not recognized!");

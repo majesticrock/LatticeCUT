@@ -11,7 +11,7 @@ namespace DOS {
     struct FreeElectrons : public Base {
         const int dimension;
 
-        FreeElectrons(size_t N, double bandwidth, int _dimension);
+        FreeElectrons(size_t N, double band_width, int _dimension);
 
         double normalization(double mass=1, double hbar=1) const;
 

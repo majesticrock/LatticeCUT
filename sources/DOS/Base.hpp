@@ -3,6 +3,11 @@
 #include <cmath>
 
 namespace DOS {
+    template <class RealType>
+	inline RealType sqrt_1_minus_x_squared(const RealType& x) {
+		return sqrt((1 - x) * (1 + x));
+	}
+
     struct Base {
         virtual ~Base() = default;
         Base(size_t N, double min_energy, double max_energy);

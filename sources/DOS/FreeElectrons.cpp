@@ -2,8 +2,8 @@
 #include <cassert>
 
 namespace DOS {
-    FreeElectrons::FreeElectrons(size_t N, double bandwidth, int _dimension) 
-        : Base(N, 0, bandwidth), dimension(_dimension)
+    FreeElectrons::FreeElectrons(size_t N, double band_width, int _dimension) 
+        : Base(N, 0, band_width), dimension(_dimension)
     { }
 
     double FreeElectrons::normalization(double mass/* =1 */, double hbar/* =1 */) const

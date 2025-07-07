@@ -195,6 +195,7 @@ namespace LatticeCUT {
         l_float prev_min { std::numeric_limits<l_float>::max() };
 		l_float min { std::numeric_limits<l_float>::max() };
         for(int k = 0; k < model->N; ++k) {
+			//std::cout << "k:  " << model->single_particle_energy(k) << "    " << model->quasiparticle_energy_index(k) << std::endl;
             if (model->quasiparticle_energy_index(k) < prev_min) {
                 prev_min = model->quasiparticle_energy_index(k);
                 min = model->single_particle_energy(k);
@@ -226,5 +227,6 @@ namespace LatticeCUT {
 		auto solver = mrock::utility::Selfconsistency::make_broyden<l_float>(model.get(), &model->Delta, 200);
 #endif
 		solver.compute(true);
+		std::cout << "Delta_max = " << model->delta_max() << std::endl;
 	}
 }

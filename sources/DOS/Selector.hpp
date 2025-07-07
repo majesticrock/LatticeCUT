@@ -8,7 +8,7 @@
 
 namespace DOS {
     struct Selector {
-        std::vector<double> const& select_dos(const std::string& name, int N, double bandwidth);
+        std::vector<double> const& select_dos(const std::string& name, int N, double band_width);
 
         inline double get_min_energy() const {
             assert(dos_ptr && "dos_ptr is nullptr!");
