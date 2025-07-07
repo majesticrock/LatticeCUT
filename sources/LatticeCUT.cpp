@@ -17,7 +17,8 @@ int main(int argc, char** argv) {
     mrock::utility::InputFileReader input(argv[1]);
 
     ModeHelper modes(input);
-    const std::string output_folder = input.getString("output_folder") + "/" + modes.getModel().to_folder();
+    const std::string output_folder = BASE_FOLDER + input.getString("output_folder") + "/" + modes.getModel().to_folder();
+	std::filesystem::create_directories(output_folder);
 
     nlohmann::json comments = {
 		{ "time", 				mrock::utility::time_stamp() },
@@ -25,6 +26,8 @@ int main(int argc, char** argv) {
 		{ "g", 					modes.getModel().phonon_coupling },
 		{ "U",	                modes.getModel().local_interaction },
         { "Delta_epsilon", 		modes.getModel().delta_epsilon },
+		{ "min_energy",			modes.getModel().min_energy },
+		{ "band_width",			modes.getModel().band_width },
         { "E_F", 				modes.getModel().fermi_energy },
 		{ "omega_D", 			modes.getModel().omega_debye },
         { "N",              	modes.getModel().N },
@@ -33,7 +36,9 @@ int main(int argc, char** argv) {
 
     nlohmann::json info_json = mrock::utility::generate_json<LatticeCUT::info>("lattice_cut_");
 	info_json.update(mrock::utility::generate_json<mrock::info>("mrock_"));
-	mrock::utility::saveString(info_json.dump(4), BASE_FOLDER + output_folder + "metadata.json.gz");
+	
+	std::cout << "Saving data to " << output_folder << std::endl;
+	mrock::utility::saveString(info_json.dump(4), output_folder + "metadata.json.gz");
 
     /*
 	* Compute and output gap data
@@ -43,7 +48,7 @@ int main(int argc, char** argv) {
 		{ "Delta", 	    modes.getModel().Delta.as_vector() }
 	};
 	jDelta.merge_patch(comments);
-	mrock::utility::saveString(jDelta.dump(4), BASE_FOLDER + output_folder + "gap.json.gz");
+	mrock::utility::saveString(jDelta.dump(4), output_folder + "gap.json.gz");
 
     auto resolvents = modes.compute_collective_modes(150);
 	if (!resolvents.empty()) {
@@ -52,7 +57,7 @@ int main(int argc, char** argv) {
 			{ "continuum_boundaries", modes.continuum_boundaries() }
 		};
 		jResolvents.merge_patch(comments);
-		mrock::utility::saveString(jResolvents.dump(4), BASE_FOLDER + output_folder + "resolvents.json.gz");
+		mrock::utility::saveString(jResolvents.dump(4),output_folder + "resolvents.json.gz");
 	}
 
     return 0;

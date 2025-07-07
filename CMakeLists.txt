@@ -26,8 +26,9 @@ target_sources(latticecut PRIVATE
     sources/LatticeCUT/DOSModel.cpp
     sources/LatticeCUT/ModeHelper.cpp
 )
-
 SET_COMPILER_FLAGS(latticecut)
 
-target_link_libraries(latticecut PRIVATE OpenMP::OpenMP_CXX ${mrock_LIBRARIES})
+add_subdirectory(sources/DOS)
+
+target_link_libraries(latticecut PRIVATE OpenMP::OpenMP_CXX DOS ${mrock_LIBRARIES})
 target_include_directories(latticecut PRIVATE ${mrock_INCLUDE_DIRS})

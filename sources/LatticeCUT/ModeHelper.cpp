@@ -2,8 +2,8 @@
 #include <mrock/utility/Selfconsistency/IterativeSolver.hpp>
 #include <mrock/utility/Selfconsistency/BroydenSolver.hpp>
 
-#define ieom_diag model->delta_epsilon * model->density_of_states[k]
-#define ieom_offdiag model->delta_epsilon * model->delta_epsilon * model->density_of_states[k] * model->density_of_states[l] * model->N
+#define ieom_diag model->density_of_states[k]
+#define ieom_offdiag model->density_of_states[k] * model->density_of_states[l] * model->delta_epsilon
 
 #ifdef _complex
 #define __conj(z) std::conj(z)
@@ -49,8 +49,8 @@ namespace LatticeCUT {
 		mrock::symbolic_operators::WickOperator const* const other_op = term.is_bilinear() ? nullptr : &(term.operators[q_dependend == 0]);
 		l_float value{};
 
-        for (int i = model->phonon_lower_bound(k); i <= model->phonon_upper_bound(k); ++i) {
-            value += this->get_expectation_value(*summed_op, i) * model->density_of_states[i];
+        for (int q = model->phonon_lower_bound(k); q <= model->phonon_upper_bound(k); ++q) {
+            value += this->get_expectation_value(*summed_op, q) * model->density_of_states[q];
         }
 		if (other_op) {
 			value *= this->get_expectation_value(*other_op, k);
@@ -66,8 +66,8 @@ namespace LatticeCUT {
 		mrock::symbolic_operators::WickOperator const* const other_op = term.is_bilinear() ? nullptr : &(term.operators[q_dependend == 0]);
 		l_float value{};
 
-        for (int i = 0; i < model->N; ++i) {
-            value += this->get_expectation_value(*summed_op, i) * model->density_of_states[i];
+        for (int q = 0; q < model->N; ++q) {
+            value += this->get_expectation_value(*summed_op, q) * model->density_of_states[q];
         }
 		if (other_op) {
 			value *= this->get_expectation_value(*other_op, k);
@@ -130,7 +130,6 @@ namespace LatticeCUT {
 				}
 				else {
 					for (int l = 0; l < model->N; ++l) {
-						if (is_zero(l)) continue;
 						M(i * model->N + k, j * model->N + l) += ieom_offdiag * computeTerm(term, k, l);
 					}
 				}
@@ -198,7 +197,7 @@ namespace LatticeCUT {
         for(int k = 0; k < model->N; ++k) {
             if (model->quasiparticle_energy_index(k) < prev_min) {
                 prev_min = model->quasiparticle_energy_index(k);
-                min = (k - model->fermi_energy) * model->delta_epsilon;
+                min = model->single_particle_energy(k);
             }
         }
         std::cout << "Found minimum at epsilon=" << min 

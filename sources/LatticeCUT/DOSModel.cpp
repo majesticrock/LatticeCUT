@@ -2,14 +2,22 @@
 
 #include <mrock/utility/better_to_string.hpp>
 
+#include "../DOS/Selector.hpp"
+
 namespace LatticeCUT {
     DOSModel::DOSModel(mrock::utility::InputFileReader& input) 
-        : phonon_coupling{input.getDouble("phonon_coupling")},
+        : g_in{input.getDouble("phonon_coupling")},
         local_interaction{input.getDouble("local_interaction")},
-        delta_epsilon{input.getDouble("band_width") / static_cast<l_float>(input.getInt("N") - 1)},
-        fermi_energy{input.getInt("fermi_energy")},
-        omega_debye{input.getInt("omega_debye")},
+        band_width{input.getDouble("band_width")},
+        delta_epsilon{band_width / static_cast<l_float>(input.getInt("N") - 1)},
+        fermi_energy{ input.getDouble("fermi_energy") },
+        omega_debye_in{ input.getDouble("omega_debye") },
         N{input.getInt("N")},
+        omega_debye{ static_cast<int>(omega_debye_in * N) },
+        dos_name{input.getString("dos")},
+        density_of_states{selector.select_dos(dos_name, N, band_width)},
+        min_energy{selector.get_min_energy()},
+        phonon_coupling{g_in / density_of_states[static_cast<int>((fermi_energy + min_energy) / delta_epsilon)]},
         Delta(decltype(Delta)::FromAllocator([&](int k) -> l_float {
 			const l_float magnitude = (k < 2 * fermi_energy * omega_debye || k > 2 * fermi_energy * omega_debye) ? 0.01 : 0.1;
 			if (k < N) {
@@ -18,9 +26,6 @@ namespace LatticeCUT {
 			return l_float{};
 			}, N))
     {
-        std::cout << "I GOT HERE!" << std::endl;
-        abort();
-        // TODO: Fill DOS
         // TODO: Take care of the chemical potential induced by U
     }
 
@@ -56,13 +61,12 @@ namespace LatticeCUT {
     l_float DOSModel::sc_expectation_value_index(int k) const
     {
         if (is_zero(Delta[k])) return l_float{};
-		const l_float E = quasiparticle_energy_index(k);
-		return -Delta[k] / (2 * E);
+		return -Delta[k] / (2 * quasiparticle_energy_index(k));
     }
 
     l_float DOSModel::occupation_index(int k) const
     {
-        const l_float eps_mu = (k - fermi_energy) * delta_epsilon;
+        const l_float eps_mu = single_particle_energy(k);
 		if (is_zero(Delta[k])) {
 			if (is_zero(eps_mu)) return 0.5;
 			return (eps_mu < 0 ? 1 : 0);
@@ -74,7 +78,7 @@ namespace LatticeCUT {
     {
         if (coeff.name == "\\epsilon_0")
 		{
-			return (first - fermi_energy) * delta_epsilon;
+			return single_particle_energy(first);
 		}
 		else if (coeff.name == "g")
 		{
@@ -140,11 +144,11 @@ namespace LatticeCUT {
 			}
 			};
         
-        return dos_name + "/N=" + std::to_string(N) + 
-            + "g=" + improved_string(phonon_coupling) + "/"
+        return dos_name + "/N=" + std::to_string(N) + "/"
+            + "g=" + improved_string(g_in) + "/"
             + "U=" + improved_string(local_interaction) + "/"
-            + "delta_epsilon=" + improved_string(delta_epsilon) + "/"
+            + "band_width=" + improved_string(band_width) + "/"
             + "E_F=" + improved_string(fermi_energy) + "/"
-            + "omega_D=" + improved_string(omega_debye) + "/";
+            + "omega_D=" + improved_string(omega_debye_in) + "/";
     }
 }
