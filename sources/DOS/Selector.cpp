@@ -6,12 +6,14 @@
 
 #include "FreeElectrons.hpp"
 #include "SimpleCubic.hpp"
+#include "FCC.hpp"
 
 namespace DOS {
     std::vector<double> const& Selector::select_dos(const std::string& name, int N, double band_width) 
     {
         const std::string free_electrons_name = "free_electrons";
         const std::string sc_name = "simple_cubic";
+        const std::string fcc_name = "fcc";
 
         if (dos_ptr) return dos_ptr->get_dos();
 
@@ -24,6 +26,9 @@ namespace DOS {
         }
         else if (name == sc_name) {
             dos_ptr = std::make_unique<SimpleCubic>(N, band_width);
+        }
+        else if (name == fcc_name) {
+            dos_ptr = std::make_unique<FCC>(N, band_width);
         }
         else {
             throw std::invalid_argument("DOS '" + name + "' not recognized!");

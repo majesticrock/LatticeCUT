@@ -3,6 +3,7 @@ set(DOS_SOURCES
     Selector.cpp
     FreeElectrons.cpp
     SimpleCubic.cpp
+    FCC.cpp
 )
 
 add_library(DOS STATIC ${DOS_SOURCES})

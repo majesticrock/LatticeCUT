@@ -1,28 +1,19 @@
 #include "SimpleCubic.hpp"
 #include <boost/math/special_functions/ellint_1.hpp>
 #include <boost/math/special_functions/ellint_2.hpp>
-#include <boost/multiprecision/cpp_bin_float.hpp>
 #include <boost/math/special_functions/pow.hpp>
 #include <boost/math/quadrature/tanh_sinh.hpp>
 #include <boost/math/quadrature/gauss_kronrod.hpp>
-
-#define _CONST_LONG_FLOATING constexpr _internal_precision
+#include <iostream>
 
 namespace DOS {
     SimpleCubic::SimpleCubic(size_t N, double band_width)
         : Base(N, -0.5 * band_width, 0.5 * band_width)
     { }
 
-    using _internal_precision = long double;
-    using abscissa_t = double;
-
-	_CONST_LONG_FLOATING LONG_1_PI = 0.5 * boost::math::constants::two_div_pi<_internal_precision>(); // 1 / pi
-    _CONST_LONG_FLOATING LONG_PI = boost::math::constants::pi<_internal_precision>(); // pi
-    _CONST_LONG_FLOATING LOG_4 = 2 * boost::math::constants::ln_two<_internal_precision>(); // ln(4) = 2 ln(2)
-    _CONST_LONG_FLOATING CUT_OFF = 1e-12;
-    _CONST_LONG_FLOATING R_AT_2 = (LONG_PI - 4) / 8;
-	_CONST_LONG_FLOATING R_AT_2_1 = (5 * LONG_PI / 64 - 0.25L);
-    
+	_CONST_LONG_FLOATING CUT_OFF = 1e-12L;
+    _CONST_LONG_FLOATING R_AT_2 = (LONG_PI - 4.L) / 8.L;
+	_CONST_LONG_FLOATING R_AT_2_1 = (5.L * LONG_PI / 64.L - 0.25L); 
 
     inline _internal_precision R(abscissa_t x) {
 		x *= 0.5;
