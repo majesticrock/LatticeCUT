@@ -7,8 +7,8 @@
 #include <iostream>
 
 namespace DOS {
-    SimpleCubic::SimpleCubic(size_t N, double band_width)
-        : Base(N, -0.5 * band_width, 0.5 * band_width)
+    SimpleCubic::SimpleCubic(size_t N)
+        : Base(N, -3, 3)
     { }
 
 	_CONST_LONG_FLOATING CUT_OFF = 1e-12L;
@@ -75,7 +75,7 @@ namespace DOS {
 		_dos.front() = 0.0;
 		_dos.back() = 0.0;
         for (int k = 1; k < _dos.size() - 1; ++k) {
-			const double epsilon = 6 * (_min_energy + k * dE) / (_max_energy - _min_energy);
+			const double epsilon = _min_energy + k * dE;
 			_dos[k] = (_max_energy - _min_energy) / 6. * static_cast<double>(boost::math::pow<3>(LONG_1_PI) * (I_1(epsilon) - I_2(epsilon)));
 		}
 

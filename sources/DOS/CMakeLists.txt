@@ -4,6 +4,8 @@ set(DOS_SOURCES
     FreeElectrons.cpp
     SimpleCubic.cpp
     FCC.cpp
+    BCC.cpp
+    HoneyComb.cpp
 )
 
 add_library(DOS STATIC ${DOS_SOURCES})

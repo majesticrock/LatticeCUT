@@ -195,7 +195,6 @@ namespace LatticeCUT {
         l_float prev_min { std::numeric_limits<l_float>::max() };
 		l_float min { std::numeric_limits<l_float>::max() };
         for(int k = 0; k < model->N; ++k) {
-			//std::cout << "k:  " << model->single_particle_energy(k) << "    " << model->quasiparticle_energy_index(k) << std::endl;
             if (model->quasiparticle_energy_index(k) < prev_min) {
                 prev_min = model->quasiparticle_energy_index(k);
                 min = model->single_particle_energy(k);
@@ -203,7 +202,7 @@ namespace LatticeCUT {
         }
         std::cout << "Found minimum at epsilon=" << min 
             << "   E(min)=" << prev_min
-            << "   E(0)=" << model->quasiparticle_energy_index(model->fermi_energy) << std::endl;
+            << "   E(0)=" << model->quasiparticle_energy_index(static_cast<int>((model->fermi_energy - model->min_energy) / model->delta_epsilon)) << std::endl;
         return { 2 * prev_min,
 			2 * std::max(model->quasiparticle_energy_index(model->N - 1), model->quasiparticle_energy_index(0)) };
     }

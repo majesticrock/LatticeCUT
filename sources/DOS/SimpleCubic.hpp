@@ -8,7 +8,7 @@
 
 namespace DOS {
     struct SimpleCubic : public Base {
-        SimpleCubic(size_t N, double band_width);
+        SimpleCubic(size_t N);
 
     protected:
         void compute() final;

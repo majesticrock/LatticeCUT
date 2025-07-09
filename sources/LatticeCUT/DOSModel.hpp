@@ -15,18 +15,16 @@ namespace LatticeCUT {
 
         const l_float phonon_coupling; ///< g_in
         const l_float local_interaction; ///< in units of the hopping constant
-        const l_float band_width; ///< in units of the hopping constant
-        const l_float delta_epsilon; ///< in units of the hopping constant
         const l_float fermi_energy; ///< in units of the hopping constant
         const l_float omega_debye_in; ///< fraction of discretization points (N) in which the phonon_coupling is active
         const int N; ///< Number of discretization points
         const int omega_debye; ///< in units of Delta epsilon := epislon_(i+1) - epsilon_i
         
-
         DOS::Selector selector;
         const std::string dos_name;
         const std::vector<l_float>& density_of_states;
         const l_float min_energy; ///< in units of the hopping constant
+        const l_float delta_epsilon; ///< in units of the hopping constant
            
         ModelAttributes<l_float> Delta;
 

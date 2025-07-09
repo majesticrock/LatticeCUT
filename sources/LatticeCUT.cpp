@@ -27,7 +27,7 @@ int main(int argc, char** argv) {
 		{ "U",	                modes.getModel().local_interaction },
         { "Delta_epsilon", 		modes.getModel().delta_epsilon },
 		{ "min_energy",			modes.getModel().min_energy },
-		{ "band_width",			modes.getModel().band_width },
+		{ "band_width",			modes.getModel().selector.get_band_width() },
         { "E_F", 				modes.getModel().fermi_energy },
 		{ "omega_D", 			modes.getModel().omega_debye },
         { "N",              	modes.getModel().N },

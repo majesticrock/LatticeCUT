@@ -8,15 +8,14 @@ namespace LatticeCUT {
     DOSModel::DOSModel(mrock::utility::InputFileReader& input) 
         : phonon_coupling{input.getDouble("phonon_coupling")},
         local_interaction{input.getDouble("local_interaction")},
-        band_width{input.getDouble("band_width")},
-        delta_epsilon{band_width / static_cast<l_float>(input.getInt("N") - 1)},
         fermi_energy{ input.getDouble("fermi_energy") },
         omega_debye_in{ input.getDouble("omega_debye") },
         N{input.getInt("N")},
         omega_debye{ static_cast<int>(omega_debye_in * N) },
         dos_name{input.getString("dos")},
-        density_of_states{selector.select_dos(dos_name, N, band_width)},
+        density_of_states{selector.select_dos(dos_name, N)},
         min_energy{selector.get_min_energy()},
+        delta_epsilon{selector.get_band_width() / static_cast<l_float>(input.getInt("N") - 1)},
         Delta(decltype(Delta)::FromAllocator([&](int k) -> l_float {
 			const l_float magnitude = (k < omega_debye || k > omega_debye) ? 0.01 : 0.1;
 			if (k < N) {
@@ -147,7 +146,6 @@ namespace LatticeCUT {
         return dos_name + "/N=" + std::to_string(N) + "/"
             + "g=" + improved_string(phonon_coupling) + "/"
             + "U=" + improved_string(local_interaction) + "/"
-            + "band_width=" + improved_string(band_width) + "/"
             + "E_F=" + improved_string(fermi_energy) + "/"
             + "omega_D=" + improved_string(omega_debye_in) + "/";
     }
