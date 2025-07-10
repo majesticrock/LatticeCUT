@@ -3,6 +3,7 @@
 #include <stdexcept>
 #include <cctype>
 #include <algorithm>
+#include <iostream>
 
 #include "FreeElectrons.hpp"
 #include "SimpleCubic.hpp"
@@ -47,5 +48,21 @@ namespace DOS {
         }
 
         return dos_ptr->get_dos();
+    }
+
+    double Selector::average_in_range(double low, double up) const
+    {
+        const double dE = (dos_ptr->get_max_energy() - dos_ptr->get_min_energy()) / dos_ptr->size();
+        size_t N_low =  static_cast<size_t>((std::max(low, dos_ptr->get_min_energy()) - dos_ptr->get_min_energy()) / dE);
+        size_t N_up  =  static_cast<size_t>((std::min(up,  dos_ptr->get_max_energy()) - dos_ptr->get_min_energy()) / dE);
+        if (N_up == dos_ptr->size()) --N_up;
+
+        double avg{};
+        for (size_t i = N_low; i <= N_up; ++i) {
+            avg += dos_ptr->get_dos()[i];
+        }
+        avg *= dE;
+        std::cout << "Average DOS in range = " << avg << std::endl;
+        return avg;
     }
 }

@@ -31,11 +31,5 @@ namespace DOS {
 
             _dos[k] = (-1. / _pi) * static_cast<double>(std::imag(G));
         }
-        
-        double sum{};
-		for (const auto& d : _dos)
-			sum += d;
-		sum *= dE;
-		std::cout << "DOS Norm = " << sum << std::endl;
     }
 }

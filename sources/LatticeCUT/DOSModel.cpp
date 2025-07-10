@@ -6,7 +6,7 @@
 
 namespace LatticeCUT {
     DOSModel::DOSModel(mrock::utility::InputFileReader& input) 
-        : phonon_coupling{input.getDouble("phonon_coupling")},
+        : phonon_coupling_in{input.getDouble("phonon_coupling")},
         local_interaction{input.getDouble("local_interaction")},
         fermi_energy{ input.getDouble("fermi_energy") },
         omega_debye_in{ input.getDouble("omega_debye") },
@@ -16,6 +16,7 @@ namespace LatticeCUT {
         density_of_states{selector.select_dos(dos_name, N)},
         min_energy{selector.get_min_energy()},
         delta_epsilon{selector.get_band_width() / static_cast<l_float>(input.getInt("N") - 1)},
+        phonon_coupling{phonon_coupling_in / selector.average_in_range(fermi_energy - 2 * omega_debye * delta_epsilon, fermi_energy + 2 * omega_debye * delta_epsilon)},
         Delta(decltype(Delta)::FromAllocator([&](int k) -> l_float {
 			const l_float magnitude = (k < omega_debye || k > omega_debye) ? 0.01 : 0.1;
 			if (k < N) {
@@ -144,7 +145,7 @@ namespace LatticeCUT {
 			};
         
         return dos_name + "/N=" + std::to_string(N) + "/"
-            + "g=" + improved_string(phonon_coupling) + "/"
+            + "g=" + improved_string(phonon_coupling_in) + "/"
             + "U=" + improved_string(local_interaction) + "/"
             + "E_F=" + improved_string(fermi_energy) + "/"
             + "omega_D=" + improved_string(omega_debye_in) + "/";

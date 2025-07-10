@@ -35,11 +35,5 @@ namespace DOS {
             _dos[k] = (LONG_1_PI*LONG_1_PI) * (std::abs(z) / std::sqrt(capital_Z0(z))) 
                         * boost::math::ellint_1(std::sqrt(capital_Z1(z) / capital_Z0(z)));
         }
-
-        double sum{};
-		for (const auto& d : _dos)
-			sum += d;
-		sum *= dE;
-		std::cout << "DOS Norm = " << sum << std::endl;
     }
 }

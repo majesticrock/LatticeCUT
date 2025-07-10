@@ -21,6 +21,8 @@ namespace DOS {
         inline double get_band_width() const {
             return (get_max_energy() - get_min_energy());
         }
+
+        double average_in_range(double low, double up) const;
     private:
         std::unique_ptr<Base> dos_ptr;
     };

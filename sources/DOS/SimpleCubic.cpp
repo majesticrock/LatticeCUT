@@ -78,11 +78,5 @@ namespace DOS {
 			const double epsilon = _min_energy + k * dE;
 			_dos[k] = (_max_energy - _min_energy) / 6. * static_cast<double>(boost::math::pow<3>(LONG_1_PI) * (I_1(epsilon) - I_2(epsilon)));
 		}
-
-		double sum{};
-		for (const auto& d : _dos)
-			sum += d;
-		sum *= dE;
-		std::cout << "DOS Norm = " << sum << std::endl;
     }
 }

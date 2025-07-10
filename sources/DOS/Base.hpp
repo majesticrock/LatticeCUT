@@ -26,12 +26,17 @@ namespace DOS {
         Base(size_t N, double min_energy, double max_energy);
 
         std::vector<double> const& get_dos();
-        inline double get_min_energy() const {
+        void normalize();
+
+        inline double get_min_energy() const noexcept {
             return _min_energy;
         }
-        inline double get_max_energy() const {
+        inline double get_max_energy() const noexcept {
             return _max_energy;
         }
+        inline size_t size() const noexcept {
+            return _dos.size();
+        }    
     protected:
         static constexpr double _pi = 3.1415926535897932384626;
         virtual void compute() = 0;

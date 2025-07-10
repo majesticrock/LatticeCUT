@@ -13,7 +13,7 @@ namespace LatticeCUT {
     struct DOSModel {
         typedef Eigen::VectorXd ParameterVector;
 
-        const l_float phonon_coupling; ///< g_in
+        const l_float phonon_coupling_in; ///< g_in
         const l_float local_interaction; ///< in units of the hopping constant
         const l_float fermi_energy; ///< in units of the hopping constant
         const l_float omega_debye_in; ///< fraction of discretization points (N) in which the phonon_coupling is active
@@ -25,7 +25,8 @@ namespace LatticeCUT {
         const std::vector<l_float>& density_of_states;
         const l_float min_energy; ///< in units of the hopping constant
         const l_float delta_epsilon; ///< in units of the hopping constant
-           
+        const l_float phonon_coupling; ///< g_in / \int_(E_F-omega_D)^(E_F+omega_D) rho(E) dE
+
         ModelAttributes<l_float> Delta;
 
         DOSModel(mrock::utility::InputFileReader& input);
