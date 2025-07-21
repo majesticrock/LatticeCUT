@@ -6,6 +6,7 @@ set(DOS_SOURCES
     FCC.cpp
     BCC.cpp
     HoneyComb.cpp
+    EnergyRanges.cpp
 )
 
 add_library(DOS STATIC ${DOS_SOURCES})

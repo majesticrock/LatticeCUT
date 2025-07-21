@@ -2,8 +2,10 @@
 #include <cassert>
 
 namespace DOS {
-    FreeElectrons::FreeElectrons(size_t N, double band_width, int _dimension) 
-        : Base(N, 0, band_width), dimension(_dimension)
+    constexpr double factor_range = 10;
+
+    FreeElectrons::FreeElectrons(size_t N, double band_width, int _dimension, double E_F, double debye) 
+        : Base(N, 0, band_width, E_F, factor_range * debye), dimension(_dimension)
     { }
 
     double FreeElectrons::normalization(double mass/* =1 */, double hbar/* =1 */) const
@@ -14,10 +16,9 @@ namespace DOS {
     void FreeElectrons::compute() 
     {
         const double An = normalization(); 
-        const double step = (_max_energy - _min_energy) / (_dos.size() - 1);
         for (size_t i = 0; i < _dos.size(); i++)
         {
-            _dos[i] = An * std::pow(i * step + _min_energy, 0.5 * dimension - 1.0);
+            _dos[i] = _energies.get_dE(i) * An * std::pow(_energies.index_to_energy(i), 0.5 * dimension - 1.0);
         }
     }
 }

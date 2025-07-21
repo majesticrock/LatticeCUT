@@ -6,9 +6,10 @@
 
 namespace DOS {
     using dos_complex = std::complex<_internal_precision>;
+    constexpr double factor_range = 10;
 
-    BCC::BCC(size_t N)
-        : Base(N, -1., 1.)
+    BCC::BCC(size_t N, double E_F, double debye)
+        : Base(N, -1., 1., E_F, factor_range * debye)
     { }
 
     dos_complex elliptical_integral(dos_complex k) {
@@ -18,11 +19,11 @@ namespace DOS {
     // https://link.springer.com/article/10.1023/A:1015753428116
     void BCC::compute()
     {
-        const _internal_precision dE = static_cast<_internal_precision>((_max_energy - _min_energy) / _dos.size());
+        const _internal_precision ratio = 2. / _energies.total_range;
         for(int k = 0; k < _dos.size(); ++k) {
-            const dos_complex energy = {_min_energy + dE * k, 1e-8};
+            const dos_complex energy = ratio * _energies.index_to_energy(k);
             const dos_complex ell  = elliptical_integral(one_half + std::sqrt(1.L - 1.L / (energy * energy)));
-            _dos[k] = FOUR_OVER_PI_SQR * LONG_1_PI * (ell * ell / energy).imag();
+            _dos[k] = ratio * _energies.get_dE(k) * FOUR_OVER_PI_SQR * LONG_1_PI * (ell * ell / energy).imag();
         }
     }
 }

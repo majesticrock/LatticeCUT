@@ -2,6 +2,7 @@
 #include "GlobalDefinitions.hpp"
 #include "ModelAttributes.hpp"
 #include "../DOS/Selector.hpp"
+#include "../DOS/EnergyRanges.hpp"
 
 #include <string>
 #include <map>
@@ -16,15 +17,14 @@ namespace LatticeCUT {
         const l_float phonon_coupling_in; ///< g_in
         const l_float local_interaction; ///< in units of the hopping constant
         const l_float fermi_energy; ///< in units of the hopping constant
-        const l_float omega_debye_in; ///< fraction of discretization points (N) in which the phonon_coupling is active
+        const l_float omega_debye_in; ///< fraction of the bandwidth in which the phonon_coupling is active
         const int N; ///< Number of discretization points
-        const int omega_debye; ///< in units of Delta epsilon := epislon_(i+1) - epsilon_i
         
         DOS::Selector selector;
         const std::string dos_name;
         const std::vector<l_float>& density_of_states;
-        const l_float min_energy; ///< in units of the hopping constant
-        const l_float delta_epsilon; ///< in units of the hopping constant
+        const DOS::EnergyRanges& energies;
+        const l_float omega_debye; ///< used for calculations
         const l_float phonon_coupling; ///< g_in / \int_(E_F-omega_D)^(E_F+omega_D) rho(E) dE
 
         ModelAttributes<l_float> Delta;
@@ -37,7 +37,7 @@ namespace LatticeCUT {
         l_float occupation_index(int k) const;
 
         inline l_float single_particle_energy(int k) const {
-            return k * delta_epsilon - fermi_energy + min_energy;
+            return energies.index_to_energy(k) - fermi_energy;
         }
 
         inline l_float quasiparticle_energy_index(int k) const
@@ -45,11 +45,11 @@ namespace LatticeCUT {
             return sqrt(single_particle_energy(k) * single_particle_energy(k) + std::norm(Delta[k]));
         }
 
-        inline int phonon_lower_bound(int k) const {
-            return std::max(k - omega_debye, int{});
+        inline int phonon_lower_bound(l_float eps) const {
+            return std::max(energies.energy_to_index(eps - omega_debye), int{});
         }
-        inline int phonon_upper_bound(int k) const {
-            return std::min(k + omega_debye, N - 1);
+        inline int phonon_upper_bound(l_float eps) const {
+            return std::min(energies.energy_to_index(eps + omega_debye), N - 1);
         }
 
         l_float compute_coefficient(mrock::symbolic_operators::Coefficient const& coeff, int first, int second) const;

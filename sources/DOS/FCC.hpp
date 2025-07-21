@@ -11,7 +11,7 @@
 
 namespace DOS {
     struct FCC : public Base {
-        FCC(size_t N);
+        FCC(size_t N, double E_F, double debye);
 
     protected:
         void compute() final;

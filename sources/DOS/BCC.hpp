@@ -10,7 +10,7 @@
 
 namespace DOS {
     struct BCC : public Base {
-        BCC(size_t N);
+        BCC(size_t N, double E_F, double debye);
 
     protected:
         void compute() final;

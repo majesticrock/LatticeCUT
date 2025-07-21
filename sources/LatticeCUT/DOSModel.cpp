@@ -11,14 +11,14 @@ namespace LatticeCUT {
         fermi_energy{ input.getDouble("fermi_energy") },
         omega_debye_in{ input.getDouble("omega_debye") },
         N{input.getInt("N")},
-        omega_debye{ static_cast<int>(omega_debye_in * N) },
+        selector(),
         dos_name{input.getString("dos")},
-        density_of_states{selector.select_dos(dos_name, N)},
-        min_energy{selector.get_min_energy()},
-        delta_epsilon{selector.get_band_width() / static_cast<l_float>(input.getInt("N") - 1)},
-        phonon_coupling{phonon_coupling_in / selector.average_in_range(fermi_energy - 2 * omega_debye * delta_epsilon, fermi_energy + 2 * omega_debye * delta_epsilon)},
+        density_of_states{selector.select_dos(dos_name, N, fermi_energy, omega_debye_in)},
+        energies{selector.get_energies()},
+        omega_debye{ omega_debye_in * energies.total_range },
+        phonon_coupling{phonon_coupling_in / selector.average_in_range(fermi_energy - 2 * omega_debye, fermi_energy + 2 * omega_debye)}, 
         Delta(decltype(Delta)::FromAllocator([&](int k) -> l_float {
-			const l_float magnitude = (k < omega_debye || k > omega_debye) ? 0.01 : 0.1;
+			const l_float magnitude = (k < omega_debye_in * N || k > omega_debye_in * N) ? 0.01 : 0.1;
 			if (k < N) {
 				return magnitude;
 			}
@@ -37,18 +37,19 @@ namespace LatticeCUT {
 
         for (int k = 0; k < N; k++)
         {
+            const l_float energy_k = energies.index_to_energy(k);
             l_float __part{};
-            for (int l = phonon_lower_bound(k); l <= phonon_upper_bound(k); ++l)
+            for (int l = phonon_lower_bound(energy_k); l <= phonon_upper_bound(energy_k); ++l)
             {
                 __part -= _expecs[mrock::symbolic_operators::SC_Type][l] * density_of_states[l];
             }
-            result(k) = phonon_coupling * delta_epsilon * __part;
+            result(k) = phonon_coupling * __part;
             __part = l_float{};
             for (int l = 0; l < N; ++l)
             {
                 __part += _expecs[mrock::symbolic_operators::SC_Type][l] * density_of_states[l];
             }
-            result(k) += local_interaction * delta_epsilon * __part;
+            result(k) += local_interaction * __part;
         }
 
         this->Delta.fill_with(result, 0.5);
@@ -82,7 +83,7 @@ namespace LatticeCUT {
 		}
 		else if (coeff.name == "g")
 		{
-            if (std::abs(first - second) > omega_debye) {
+            if (std::abs(energies.index_to_energy(first) - energies.index_to_energy(second)) > omega_debye) {
                 return l_float{};
             }
             return phonon_coupling;

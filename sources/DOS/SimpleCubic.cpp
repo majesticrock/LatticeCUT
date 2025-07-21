@@ -7,11 +7,13 @@
 #include <iostream>
 
 namespace DOS {
-    SimpleCubic::SimpleCubic(size_t N)
-        : Base(N, -3, 3)
+	constexpr double factor_range = 10;
+
+    SimpleCubic::SimpleCubic(size_t N, double E_F, double debye)
+        : Base(N, -1, 1, E_F, factor_range * debye)
     { }
 
-	_CONST_LONG_FLOATING CUT_OFF = 1e-12L;
+	_CONST_LONG_FLOATING CUT_OFF = 1e-6L;
     _CONST_LONG_FLOATING R_AT_2 = (LONG_PI - 4.L) / 8.L;
 	_CONST_LONG_FLOATING R_AT_2_1 = (5.L * LONG_PI / 64.L - 0.25L); 
 
@@ -71,12 +73,18 @@ namespace DOS {
 
     void SimpleCubic::compute()
     {
-		const auto dE = (_max_energy - _min_energy) / _dos.size();
+		const double ratio = 6. / _energies.total_range;
 		_dos.front() = 0.0;
 		_dos.back() = 0.0;
         for (int k = 1; k < _dos.size() - 1; ++k) {
-			const double epsilon = _min_energy + k * dE;
-			_dos[k] = (_max_energy - _min_energy) / 6. * static_cast<double>(boost::math::pow<3>(LONG_1_PI) * (I_1(epsilon) - I_2(epsilon)));
+			const _internal_precision epsilon = ratio * _energies.index_to_energy(k);
+
+			try {
+				_dos[k] = ratio * _energies.get_dE(k) * static_cast<double>(boost::math::pow<3>(LONG_1_PI) * (I_1(epsilon) - I_2(epsilon)));
+			} catch (const boost::wrapexcept<std::overflow_error>& ex) {
+				std::cerr << "Died while computing elliptic integrals in sc-DOS at epsilon=" << epsilon << std::endl;
+				throw ex;
+			}
 		}
     }
 }

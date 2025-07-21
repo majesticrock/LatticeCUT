@@ -25,8 +25,6 @@ int main(int argc, char** argv) {
         { "dos_name",           modes.getModel().dos_name },
 		{ "g", 					modes.getModel().phonon_coupling },
 		{ "U",	                modes.getModel().local_interaction },
-        { "Delta_epsilon", 		modes.getModel().delta_epsilon },
-		{ "min_energy",			modes.getModel().min_energy },
 		{ "band_width",			modes.getModel().selector.get_band_width() },
         { "E_F", 				modes.getModel().fermi_energy },
 		{ "omega_D", 			modes.getModel().omega_debye },
@@ -44,7 +42,10 @@ int main(int argc, char** argv) {
 	* Compute and output gap data
 	*/
 	nlohmann::json jDelta = {
-        { "dos",        modes.getModel().density_of_states },
+		{ "energies",	modes.getModel().energies.get_abscissa() },
+		{ "inner_min",  modes.getModel().energies.inner_min },
+		{ "inner_max",  modes.getModel().energies.inner_max },
+        { "dos",        modes.getModel().selector.get_raw_dos() },
 		{ "Delta", 	    modes.getModel().Delta.as_vector() }
 	};
 	jDelta.merge_patch(comments);
