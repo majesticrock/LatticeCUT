@@ -16,7 +16,7 @@ namespace LatticeCUT {
         density_of_states{selector.select_dos(dos_name, N, fermi_energy, omega_debye_in)},
         energies{selector.get_energies()},
         omega_debye{ omega_debye_in * energies.total_range },
-        phonon_coupling{phonon_coupling_in / selector.average_in_range(fermi_energy - 2 * omega_debye, fermi_energy + 2 * omega_debye)}, 
+        phonon_coupling{phonon_coupling_in / selector.average_in_range(fermi_energy - omega_debye, fermi_energy + omega_debye)}, 
         Delta(decltype(Delta)::FromAllocator([&](int k) -> l_float {
 			const l_float magnitude = (k < omega_debye_in * N || k > omega_debye_in * N) ? 0.01 : 0.1;
 			if (k < N) {

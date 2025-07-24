@@ -11,9 +11,9 @@
 #define __conj(z) z
 #endif
 
-#define loop_offset model->energies.lower_discretization
-#define loop_end (model->energies.inner_discretization + 1)
-#define loop_end_init (input.getInt("N") * DOS::EnergyRanges::inner_fraction + 1)
+#define loop_offset 0//model->energies.lower_discretization
+#define loop_end model->N//(model->energies.inner_discretization + 1)
+#define loop_end_init input.getInt("N")//(input.getInt("N") * DOS::EnergyRanges::inner_fraction + 1)
 
 namespace LatticeCUT {
     int ModeHelper::select_epsilon(mrock::symbolic_operators::Momentum const &momentum, int k, int l, int q) const
@@ -209,7 +209,7 @@ namespace LatticeCUT {
             << "   E(min)=" << prev_min
             << "   E(0)=" << model->quasiparticle_energy_index(model->energies.energy_to_index(model->fermi_energy)) << std::endl;
         return { 2 * prev_min,
-			2 * std::max(model->quasiparticle_energy_index(loop_offset), model->quasiparticle_energy_index(loop_end)) };
+			2 * std::max(model->quasiparticle_energy_index(loop_offset), model->quasiparticle_energy_index(loop_end - 1)) };
     }
 
 	ModeHelper::ModeHelper(mrock::utility::InputFileReader& input)

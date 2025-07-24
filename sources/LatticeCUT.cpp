@@ -43,8 +43,10 @@ int main(int argc, char** argv) {
 	*/
 	nlohmann::json jDelta = {
 		{ "energies",	modes.getModel().energies.get_abscissa() },
+#ifndef UNIFORM_DISCRETIZATION
 		{ "inner_min",  modes.getModel().energies.inner_min },
 		{ "inner_max",  modes.getModel().energies.inner_max },
+#endif
         { "dos",        modes.getModel().selector.get_raw_dos() },
 		{ "Delta", 	    modes.getModel().Delta.as_vector() }
 	};

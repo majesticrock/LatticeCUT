@@ -7,6 +7,12 @@
 #include <random>
 #include <limits>
 
+#ifndef NDEBUG
+#define MROCK_BOUND_CHECK(cnd, msg) if ((cnd)) throw std::invalid_argument((msg));
+#else
+#define MROCK_BOUND_CHECK(cnd, msg)
+#endif
+
 namespace LatticeCUT {
 enum ComplexAttributePolicy { Magnitude, SeperateRealAndImaginary };
 
@@ -97,11 +103,11 @@ enum ComplexAttributePolicy { Magnitude, SeperateRealAndImaginary };
 		*/
 
 		inline DataType& operator[](size_t i) {
-			assert(i < selfconsistency_values.size());
+			MROCK_BOUND_CHECK(i >= selfconsistency_values.size(), "ModelAttributes accessed out of bounds with i=" + std::to_string(i));
 			return selfconsistency_values[i];
 		};
 		inline const DataType& operator[](size_t i) const {
-			assert(i < selfconsistency_values.size());
+			MROCK_BOUND_CHECK(i >= selfconsistency_values.size(), "ModelAttributes accessed out of bounds with i=" + std::to_string(i));
 			return selfconsistency_values[i];
 		};
 		inline size_t size() const noexcept {
