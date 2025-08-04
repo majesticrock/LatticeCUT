@@ -61,7 +61,7 @@ for NEW_VALUE in "${NEW_VALUES[@]}"; do
   sed -e "s|#SBATCH --job-name=sc_cut|#SBATCH --job-name=${CURRENT_TIME}_$NEW_NAME|" \
       -e "s|#SBATCH --output=/home/althueser/phd/cpp/LatticeCUT/output_sc.txt|#SBATCH --output=/home/althueser/phd/cpp/LatticeCUT/${CURRENT_TIME}_output_$NEW_NAME.txt|" \
       -e "s|^#SBATCH --constraint=.*|#SBATCH --constraint=${arch}|" \
-      -e "s|mpirun ./build_.*/latticecut .*|mpirun ./build_${arch}/latticecut auto_generated_${CURRENT_TIME}/$NEW_NAME.config|" \
+      -e "s|./build_.*/latticecut .*|./build_${arch}/latticecut auto_generated_${CURRENT_TIME}/$NEW_NAME.config|" \
       slurm/${LATTICE_TYPE}.slurm > "$slurm_path"
 
   # Submit the job
