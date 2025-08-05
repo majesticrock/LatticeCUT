@@ -27,7 +27,7 @@ int main(int argc, char** argv) {
 		{ "U",	                modes.getModel().local_interaction },
 		{ "band_width",			modes.getModel().selector.get_band_width() },
         { "E_F", 				modes.getModel().fermi_energy },
-		{ "omega_D", 			modes.getModel().omega_debye },
+		{ "omega_D", 			modes.getModel().omega_debye_in },
         { "N",              	modes.getModel().N },
         { "Delta_max", 			modes.getModel().delta_max() },
 	};
