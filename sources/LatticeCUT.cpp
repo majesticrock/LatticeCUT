@@ -23,7 +23,7 @@ int main(int argc, char** argv) {
     nlohmann::json comments = {
 		{ "time", 				mrock::utility::time_stamp() },
         { "dos_name",           modes.getModel().dos_name },
-		{ "g", 					modes.getModel().phonon_coupling },
+		{ "g", 					modes.getModel().phonon_coupling_in },
 		{ "U",	                modes.getModel().local_interaction },
 		{ "band_width",			modes.getModel().selector.get_band_width() },
         { "E_F", 				modes.getModel().fermi_energy },
