@@ -16,14 +16,14 @@ namespace DOS {
         return one_half * LONG_PI  * mrock::utility::Numerics::hypergeometric_2F1(one_half, one_half, _internal_precision{1}, k);
     }
 
-    // https://link.springer.com/article/10.1023/A:1015753428116
+    // https://www.jstor.org/stable/52609
     void BCC::compute()
     {
         const _internal_precision ratio = 2. / _energies.total_range;
         for(int k = 0; k < _dos.size(); ++k) {
-            const dos_complex energy = ratio * _energies.index_to_energy(k);
-            const dos_complex ell  = elliptical_integral(one_half + std::sqrt(1.L - 1.L / (energy * energy)));
-            _dos[k] = ratio * _energies.get_dE(k) * FOUR_OVER_PI_SQR * LONG_1_PI * (ell * ell / energy).imag();
+            const dos_complex energy = dos_complex{ratio * _energies.index_to_energy(k), 1e-15};
+            const dos_complex ell  = elliptical_integral( one_half - one_half * std::sqrt(1.L - 1.L / (energy * energy)) );
+            _dos[k] = -ratio * _energies.get_dE(k) * FOUR_OVER_PI_SQR * LONG_1_PI * (ell * ell / energy).imag();
         }
     }
 }

@@ -16,6 +16,7 @@ namespace DOS {
     _CONST_LONG_FLOATING LONG_PI = boost::math::constants::pi<_internal_precision>(); // pi
     _CONST_LONG_FLOATING FOUR_OVER_PI_SQR = boost::math::constants::two_div_pi<_internal_precision>() * boost::math::constants::two_div_pi<_internal_precision>(); // 4 / pi^2
     _CONST_LONG_FLOATING LOG_4 = 2.L * boost::math::constants::ln_two<_internal_precision>(); // ln(4) = 2 ln(2)
+    _CONST_LONG_FLOATING TWO_OVER_PI_CBD = 2.L / (LONG_PI * LONG_PI * LONG_PI); // 2 / pi^3
 
     template <class RealType>
 	inline RealType sqrt_1_minus_x_squared(const RealType& x) {

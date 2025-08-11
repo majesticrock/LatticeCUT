@@ -23,8 +23,8 @@ DOS::EnergyRanges::EnergyRanges(double _E_min, double _E_max, double _inner_min,
 #endif
 {
 	std::cout << std::setprecision(17) << std::endl;
-	std::cout << this->E_min << "   " << this->index_to_energy(0) << std::endl;
-	std::cout << this->E_max << "   " << this->index_to_energy(N - 1) << std::endl;
+	std::cout << "Check E_min:   " << this->E_min << "   " << this->index_to_energy(0) << std::endl;
+	std::cout << "Check E_max:   " << this->E_max << "   " << this->index_to_energy(N - 1) << std::endl;
 }
 
 int DOS::EnergyRanges::energy_to_index(double epsilon) const

@@ -8,7 +8,7 @@ namespace DOS {
     constexpr double factor_range = 10;
 
     FCC::FCC(size_t N, double E_F, double debye)
-        : Base(N, -0.999, 3, E_F, factor_range * debye)
+        : Base(N, -1. + 1e-10, 1., E_F, factor_range * debye)
     { }
 
     dos_complex k_minus(dos_complex const& one_over_z) {
@@ -21,8 +21,9 @@ namespace DOS {
     {
         const _internal_precision EPS = 1e-10;
         const _internal_precision ratio = 4. / _energies.total_range;
+
         for(int k = 0; k < _dos.size(); ++k) {
-            const dos_complex z = dos_complex{ratio * _energies.index_to_energy(k), EPS};
+            const dos_complex z = dos_complex{ratio * (one_half + _energies.index_to_energy(k)), EPS};
             const dos_complex one_over_z = 1.L / z;
 
             const dos_complex ellint = one_half * LONG_PI 
