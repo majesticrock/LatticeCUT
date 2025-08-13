@@ -53,7 +53,7 @@ int main(int argc, char** argv) {
 	jDelta.merge_patch(comments);
 	mrock::utility::saveString(jDelta.dump(4), output_folder + "gap.json.gz");
 
-    auto resolvents = modes.compute_collective_modes(150);
+    auto resolvents = modes.compute_collective_modes(250);
 	if (!resolvents.empty()) {
 		nlohmann::json jResolvents = {
 			{ "resolvents", resolvents },
