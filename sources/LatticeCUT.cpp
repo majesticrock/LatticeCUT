@@ -25,7 +25,6 @@ int main(int argc, char** argv) {
         { "dos_name",           modes.getModel().dos_name },
 		{ "g", 					modes.getModel().phonon_coupling_in },
 		{ "U",	                modes.getModel().local_interaction },
-		{ "band_width",			modes.getModel().selector.get_band_width() },
         { "E_F", 				modes.getModel().fermi_energy },
 		{ "omega_D", 			modes.getModel().omega_debye_in },
         { "N",              	modes.getModel().N },
