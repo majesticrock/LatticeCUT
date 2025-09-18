@@ -84,7 +84,20 @@ namespace LatticeCUT {
 	void ModeHelper::createStartingStates()
     {
 		starting_states.push_back({ _parent::Vector::Zero(antihermitian_discretization), _parent::Vector::Zero(hermitian_discretization), "SC" });
-		for (int k = 0; k < loop_end; ++k) {
+		int __b, __e;
+		if (investigated_operator == InvestigatedOperator::Full) {
+			__b = 0;
+			__e = loop_end;
+		}
+		else if (investigated_operator == InvestigatedOperator::NearZero) {
+			const int tenth = model->N / 10;
+			__b = model->N / 2 - tenth;
+			__e = model->N / 2 + tenth;
+		}
+		else {
+			throw std::invalid_argument("investigated_operator not recognized!");
+		}
+		for (int k = __b; k < __e; ++k) {
 			starting_states[0][0](k) = 1.;
 			starting_states[0][1](k) = 1.;
 		}
@@ -220,7 +233,8 @@ namespace LatticeCUT {
         model(std::make_unique<DOSModel>(input)),
 		hermitian_discretization{loop_end * hermitian_size },
 		antihermitian_discretization{loop_end * antihermitian_size },
-		total_matrix_size{loop_end * number_of_basis_terms }
+		total_matrix_size{loop_end * number_of_basis_terms },
+		investigated_operator{ static_cast<InvestigatedOperator>(input.getInt("investigated_operator")) }
 	{
 		std::cout << "Working on " << model->info() << std::endl;
 		wicks.load("../commutators/lattice_cut/", true, number_of_basis_terms, 0);

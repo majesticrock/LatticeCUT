@@ -25,6 +25,9 @@ namespace LatticeCUT {
 			return l_float{};
 			}, N))
     {
+        if (local_interaction != l_float{}){
+            throw std::invalid_argument("Finite U is not yet implemented!");
+        }
         // TODO: Take care of the chemical potential induced by U
     }
 
@@ -44,12 +47,12 @@ namespace LatticeCUT {
                 __part -= _expecs[mrock::symbolic_operators::SC_Type][l] * density_of_states[l];
             }
             result(k) = phonon_coupling * __part;
-            __part = l_float{};
-            for (int l = 0; l < N; ++l)
-            {
-                __part += _expecs[mrock::symbolic_operators::SC_Type][l] * density_of_states[l];
-            }
-            result(k) += local_interaction * __part;
+            //__part = l_float{};
+            //for (int l = 0; l < N; ++l)
+            //{
+            //    __part += _expecs[mrock::symbolic_operators::SC_Type][l] * density_of_states[l];
+            //}
+            //result(k) += local_interaction * __part;
         }
 
         this->Delta.fill_with(result, 0.5);

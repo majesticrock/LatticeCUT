@@ -21,14 +21,15 @@ int main(int argc, char** argv) {
 	std::filesystem::create_directories(output_folder);
 
     nlohmann::json comments = {
-		{ "time", 				mrock::utility::time_stamp() },
-        { "dos_name",           modes.getModel().dos_name },
-		{ "g", 					modes.getModel().phonon_coupling_in },
-		{ "U",	                modes.getModel().local_interaction },
-        { "E_F", 				modes.getModel().fermi_energy },
-		{ "omega_D", 			modes.getModel().omega_debye_in },
-        { "N",              	modes.getModel().N },
-        { "Delta_max", 			modes.getModel().delta_max() },
+		{ "time", 				   	mrock::utility::time_stamp() },
+        { "dos_name",              	modes.getModel().dos_name },
+		{ "g", 					   	modes.getModel().phonon_coupling_in },
+		{ "U",	                   	modes.getModel().local_interaction },
+        { "E_F", 				   	modes.getModel().fermi_energy },
+		{ "omega_D", 			   	modes.getModel().omega_debye_in },
+        { "N",              	   	modes.getModel().N },
+        { "Delta_max", 			   	modes.getModel().delta_max() },
+		{ "investigated_operator", 	static_cast<int>(modes.investigated_operator) }
 	};
 
     nlohmann::json info_json = mrock::utility::generate_json<LatticeCUT::info>("lattice_cut_");

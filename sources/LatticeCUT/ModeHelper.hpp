@@ -13,6 +13,8 @@
 #include <mrock/utility/Numerics/iEoM/XPResolvent.hpp>
 
 namespace LatticeCUT {
+	enum class InvestigatedOperator { Full = 0, NearZero = 1 };
+
 	class ModeHelper : public mrock::utility::Numerics::iEoM::XPResolvent<ModeHelper, l_float>
 	{
 	private:
@@ -35,7 +37,7 @@ namespace LatticeCUT {
 
 		const int hermitian_discretization;
 		const int antihermitian_discretization;
-		const int total_matrix_size;
+		const int total_matrix_size;		
 
 		void createStartingStates();
 		void fillMatrices();
@@ -46,6 +48,7 @@ namespace LatticeCUT {
 
 		l_float computeTerm(const mrock::symbolic_operators::WickTerm& term, int k, int l) const;
 	public:
+		const InvestigatedOperator investigated_operator;
 		std::vector<l_float> continuum_boundaries() const;
 
 		inline DOSModel& getModel() {
