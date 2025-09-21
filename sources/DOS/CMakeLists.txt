@@ -6,6 +6,8 @@ set(DOS_SOURCES
     FCC.cpp
     BCC.cpp
     HoneyComb.cpp
+    SinglePeak.cpp
+    DoublePeak.cpp
     EnergyRanges.cpp
 )
 

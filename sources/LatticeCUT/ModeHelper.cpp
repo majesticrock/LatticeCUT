@@ -77,7 +77,7 @@ namespace LatticeCUT {
 		if (other_op) {
 			value *= this->get_expectation_value(*other_op, k);
 		}
-		value *= static_cast<l_float>(term.multiplicity) * model->local_interaction;
+		value *= static_cast<l_float>(term.multiplicity) * model->local_interaction_energy_units;
 		return value;
     }
 
@@ -94,12 +94,28 @@ namespace LatticeCUT {
 			__b = model->N / 2 - tenth;
 			__e = model->N / 2 + tenth;
 		}
+		else if (investigated_operator == InvestigatedOperator::NearDoublePeaks) {
+			const int tenth = model->N / 10;
+			__b = model->N / 4 - tenth;
+			__e = model->N / 4 + tenth;
+		}
 		else {
 			throw std::invalid_argument("investigated_operator not recognized!");
 		}
 		for (int k = __b; k < __e; ++k) {
 			starting_states[0][0](k) = 1.;
 			starting_states[0][1](k) = 1.;
+		}
+
+		if (investigated_operator == InvestigatedOperator::NearDoublePeaks) {
+			const int tenth = model->N / 10;
+			__b = 3 * model->N / 4 - tenth;
+			__e = 3 * model->N / 4 + tenth;
+
+			for (int k = __b; k < __e; ++k) {
+				starting_states[0][0](k) = 1.;
+				starting_states[0][1](k) = 1.;
+			}
 		}
     }
 

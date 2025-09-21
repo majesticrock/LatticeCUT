@@ -13,7 +13,7 @@
 #include <mrock/utility/Numerics/iEoM/XPResolvent.hpp>
 
 namespace LatticeCUT {
-	enum class InvestigatedOperator { Full = 0, NearZero = 1 };
+	enum class InvestigatedOperator { Full = 0, NearZero = 1, NearDoublePeaks = 2 };
 
 	class ModeHelper : public mrock::utility::Numerics::iEoM::XPResolvent<ModeHelper, l_float>
 	{

@@ -16,7 +16,8 @@ namespace LatticeCUT {
         density_of_states{selector.select_dos(dos_name, N, fermi_energy, omega_debye_in)},
         energies{selector.get_energies()},
         omega_debye{ omega_debye_in * energies.total_range },
-        phonon_coupling{phonon_coupling_in / selector.average_in_range(fermi_energy - omega_debye, fermi_energy + omega_debye)}, 
+        phonon_coupling{phonon_coupling_in / selector.average_in_range(fermi_energy - omega_debye, fermi_energy + omega_debye)},
+        local_interaction_energy_units{local_interaction / selector.average_in_range(fermi_energy - omega_debye, fermi_energy + omega_debye)},
         Delta(decltype(Delta)::FromAllocator([&](int k) -> l_float {
 			const l_float magnitude = (k < omega_debye_in * N || k > omega_debye_in * N) ? 0.01 : 0.1;
 			if (k < N) {
@@ -25,10 +26,6 @@ namespace LatticeCUT {
 			return l_float{};
 			}, N))
     {
-        if (local_interaction != l_float{}){
-            throw std::invalid_argument("Finite U is not yet implemented!");
-        }
-        // TODO: Take care of the chemical potential induced by U
     }
 
     void DOSModel::iteration_step(const ParameterVector& initial_values, ParameterVector& result)
@@ -47,12 +44,12 @@ namespace LatticeCUT {
                 __part -= _expecs[mrock::symbolic_operators::SC_Type][l] * density_of_states[l];
             }
             result(k) = phonon_coupling * __part;
-            //__part = l_float{};
-            //for (int l = 0; l < N; ++l)
-            //{
-            //    __part += _expecs[mrock::symbolic_operators::SC_Type][l] * density_of_states[l];
-            //}
-            //result(k) += local_interaction * __part;
+            __part = l_float{};
+            for (int l = 0; l < N; ++l)
+            {
+                __part += _expecs[mrock::symbolic_operators::SC_Type][l] * density_of_states[l];
+            }
+            result(k) += local_interaction_energy_units * __part;
         }
 
         this->Delta.fill_with(result, 0.5);
@@ -93,7 +90,7 @@ namespace LatticeCUT {
         }
         else if (coeff.name == "U")
         {
-            return local_interaction;
+            return local_interaction_energy_units;
         }
         else
 		{
@@ -126,7 +123,7 @@ namespace LatticeCUT {
 
     std::string DOSModel::info() const
     {
-        return "DOSModel: g=" + std::to_string(phonon_coupling) + "\tU=" + std::to_string(local_interaction) + "\tDOS=" + dos_name;
+        return "DOSModel: g=" + std::to_string(phonon_coupling) + "\tU=" + std::to_string(local_interaction_energy_units) + "\tDOS=" + dos_name;
     }
 
     std::string DOSModel::to_folder() const

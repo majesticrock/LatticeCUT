@@ -26,6 +26,7 @@ namespace LatticeCUT {
         const DOS::EnergyRanges& energies;
         const l_float omega_debye; ///< used for calculations
         const l_float phonon_coupling; ///< g_in / \int_(E_F-omega_D)^(E_F+omega_D) rho(E) dE
+        const l_float local_interaction_energy_units; ///< g_in / \int_(E_F-omega_D)^(E_F+omega_D) rho(E) dE
 
         ModelAttributes<l_float> Delta;
 

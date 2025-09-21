@@ -11,6 +11,8 @@
 #include "FCC.hpp"
 #include "BCC.hpp"
 #include "HoneyComb.hpp"
+#include "SinglePeak.hpp"
+#include "DoublePeak.hpp"
 
 constexpr double FREE_3D_MAX_ENERGY = 5.0;
 
@@ -22,14 +24,17 @@ namespace DOS {
         const std::string fcc_name = "fcc";
         const std::string bcc_name = "bcc";
         const std::string honeycomb_name = "hc";
+        const std::string single_peak_name = "single_peak";
+        const std::string double_peak_name = "double_peak";
 
         if (dos_ptr) return dos_ptr->get_dos();
 
         if (name.rfind(free_electrons_name, 0) == 0) {
             std::string dimension_str = name.substr(free_electrons_name.length());
             // std::isdigit does not seem to work for some reason unbeknownst to me
-            if (dimension_str.empty() || !std::all_of(dimension_str.begin(), dimension_str.end(), ::isdigit));
-            
+            if (dimension_str.empty() || !std::all_of(dimension_str.begin(), dimension_str.end(), ::isdigit))
+                throw std::invalid_argument("For free_electrons, please provide dimension as integer after underscore, e.g. 'free_electrons3'");
+
             dos_ptr = std::make_unique<FreeElectrons>(N, FREE_3D_MAX_ENERGY, std::stoi(dimension_str), E_F, debye);
         }
         else if (name == sc_name) {
@@ -43,6 +48,20 @@ namespace DOS {
         }
         else if (name == honeycomb_name) {
             dos_ptr = std::make_unique<HoneyComb>(N, E_F, debye);
+        }
+        else if (name.rfind(single_peak_name, 0) == 0) {
+            std::string peak_weight_str = name.substr(single_peak_name.length());
+            // std::isdigit does not seem to work for some reason unbeknownst to me
+            if (peak_weight_str.empty() || !std::all_of(peak_weight_str.begin(), peak_weight_str.end(), ::isdigit))
+                throw std::invalid_argument("For single_peak, please provide peak weight as integer (understood as percent) after underscore, e.g. 'single_peak50'");
+            dos_ptr = std::make_unique<SinglePeak>(N, E_F, debye, std::stoi(peak_weight_str));
+        }
+        else if (name.rfind(double_peak_name, 0) == 0) {
+            std::string peak_weight_str = name.substr(double_peak_name.length());
+            // std::isdigit does not seem to work for some reason unbeknownst to me
+            if (peak_weight_str.empty() || !std::all_of(peak_weight_str.begin(), peak_weight_str.end(), ::isdigit))
+                throw std::invalid_argument("For double_peak, please provide peak weight as integer (understood as percent) after underscore, e.g. 'double_peak50'");
+            dos_ptr = std::make_unique<DoublePeak>(N, E_F, debye, std::stoi(peak_weight_str));
         }
         else {
             throw std::invalid_argument("DOS '" + name + "' not recognized!");
