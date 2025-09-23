@@ -11,12 +11,12 @@ include_directories(
     $ENV{HOME}/usr/local/include
 )
 
-set(MKL_ARCH intel64)
-set(MKL_THREADING parallel)
-set(MKL_INTERFACE lp64)
 set(MKL_LINK static)
+set(MKL_THREADING gnu_thread)
+set(MKL_INTERFACE lp64)
 
-find_package(MKL CONFIG QUIET PATHS $ENV{MKLROOT})
+message(WARNING $ENV{MKLROOT})
+find_package(MKL CONFIG QUIET HINTS $ENV{MKLROOT})
 if (MKL_FOUND)
     set(USE_MKL ON CACHE BOOL "Use Intel MKL" FORCE)
 else()
