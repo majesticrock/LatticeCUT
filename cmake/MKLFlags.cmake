@@ -9,7 +9,7 @@ function(SET_MKL_FLAGS TARGET)
         target_link_libraries(${TARGET} PRIVATE $<LINK_ONLY:MKL::MKL>)
 
 	# Let Eigen use MKL
-	target_compile_definitions(${TARGET} PRIVATE EIGEN_USE_MKL_ALL)
+	target_compile_definitions(${TARGET} PRIVATE EIGEN_USE_MKL_ALL MROCK_IEOM_DO_NOT_PARALLELIZE)
     else()
         message(STATUS "MKL not found or not enabled; ${TARGET} will not use Intel MKL")
     endif()
