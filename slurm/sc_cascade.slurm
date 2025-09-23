@@ -9,9 +9,9 @@
 #SBATCH --time=48:00:00         ## maximum runtime; hours:minutes:seconds
 #SBATCH --partition=long        ## choose queue
 
-##BATCH --ntasks=1              ## sets number of total mpi processes
-##BATCH --tasks-per-node=1      ## mpi processes spawned per node
-#BATCH --cpus-per-task=12       ## logical cores used per mpi process: should be 1, except if you want to combine OpenMP with$
+#SBATCH --ntasks=1              ## sets number of total mpi processes
+#SBATCH --tasks-per-node=1      ## mpi processes spawned per node
+#SBATCH --cpus-per-task=12       ## logical cores used per mpi process: should be 1, except if you want to combine OpenMP with$
 
 #SBATCH --mem=63gb              ## sets maximum allowed memory per node
 ##SBATCH --mem-per-cpu=100mb    ## sets maximum allowed memory per mpi process
@@ -30,6 +30,7 @@ cd /home/althueser/phd/cpp/LatticeCUT/        ## go to working directory
 date
 echo "--- START ---"
 
+export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 ## execute binary using mpirun on the allocated computation resource; the number of cores is $
 ./build_CascadeLake/latticecut params/cluster/sc.config
 
