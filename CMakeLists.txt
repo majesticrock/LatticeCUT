@@ -23,6 +23,7 @@ else()
     set(USE_MKL OFF CACHE BOOL "Use Intel MKL" FORCE)
 endif()
 
+include(${CMAKE_SOURCE_DIR}/cmake/MKLFlags.cmake)
 include(${CMAKE_SOURCE_DIR}/cmake/SelectClusterBuildOptions.cmake)
 
 find_package(OpenMP REQUIRED)
