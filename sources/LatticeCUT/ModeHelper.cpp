@@ -125,6 +125,7 @@ namespace LatticeCUT {
 		K_minus.setZero(antihermitian_discretization, antihermitian_discretization);
 		L.setZero(hermitian_discretization, antihermitian_discretization);
 
+#pragma omp parallel for
 		for (int i = 0; i < number_of_basis_terms; ++i)
 		{
 			for (int j = 0; j < number_of_basis_terms; ++j)

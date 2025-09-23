@@ -35,6 +35,7 @@ namespace LatticeCUT {
         this->Delta.fill_with(initial_values);
         this->get_expectation_values();
 
+#pragma omp parallel for
         for (int k = 0; k < N; k++)
         {
             const l_float energy_k = energies.index_to_energy(k);
