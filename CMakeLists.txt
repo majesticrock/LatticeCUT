@@ -15,7 +15,6 @@ set(MKL_LINK static)
 set(MKL_THREADING gnu_thread)
 set(MKL_INTERFACE lp64)
 
-message(WARNING $ENV{MKLROOT})
 find_package(MKL CONFIG QUIET HINTS $ENV{MKLROOT})
 if (MKL_FOUND)
     set(USE_MKL ON CACHE BOOL "Use Intel MKL" FORCE)
