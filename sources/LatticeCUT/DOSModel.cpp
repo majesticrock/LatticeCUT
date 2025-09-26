@@ -3,6 +3,7 @@
 #include <mrock/utility/better_to_string.hpp>
 
 #include "../DOS/Selector.hpp"
+#include <limits>
 
 namespace LatticeCUT {
     DOSModel::DOSModel(mrock::utility::InputFileReader& input) 
@@ -18,6 +19,7 @@ namespace LatticeCUT {
         omega_debye{ omega_debye_in * energies.total_range },
         phonon_coupling{phonon_coupling_in / selector.average_in_range(fermi_energy - omega_debye, fermi_energy + omega_debye)},
         local_interaction_energy_units{local_interaction / selector.average_in_range(fermi_energy - omega_debye, fermi_energy + omega_debye)},
+        beta{ input.getDouble("beta") },
         Delta(decltype(Delta)::FromAllocator([&](int k) -> l_float {
 			const l_float magnitude = (k < omega_debye_in * N || k > omega_debye_in * N) ? 0.01 : 0.1;
 			if (k < N) {
@@ -63,17 +65,23 @@ namespace LatticeCUT {
     l_float DOSModel::sc_expectation_value_index(int k) const
     {
         if (is_zero(Delta[k])) return l_float{};
-		return -Delta[k] / (2 * quasiparticle_energy_index(k));
+        if (beta < 0)
+		    return -Delta[k] / (2 * quasiparticle_energy_index(k));
+        else
+            return -Delta[k] / (2 * quasiparticle_energy_index(k)) * std::tanh(0.5 * beta * quasiparticle_energy_index(k));
     }
 
     l_float DOSModel::occupation_index(int k) const
     {
         const l_float eps_mu = single_particle_energy(k);
 		if (is_zero(Delta[k])) {
-			if (is_zero(eps_mu)) return 0.5;
-			return (eps_mu < 0 ? 1 : 0);
+			return fermi_function(eps_mu, beta);
 		}
-		return 0.5 * (1 - (eps_mu / sqrt(eps_mu * eps_mu + std::norm(Delta[k]))));
+        const l_float E = quasiparticle_energy_index(k);
+        if (beta < 0)
+            return 0.5 * (1 - (eps_mu / E));
+        else
+		    return 0.5 * (1 - (eps_mu / E) * std::tanh(0.5 * beta * E));
     }
 
     l_float DOSModel::compute_coefficient(mrock::symbolic_operators::Coefficient const &coeff, int first, int second) const

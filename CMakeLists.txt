@@ -36,6 +36,7 @@ add_executable(latticecut
 target_sources(latticecut PRIVATE
     sources/LatticeCUT/DOSModel.cpp
     sources/LatticeCUT/ModeHelper.cpp
+    sources/LatticeCUT/T_C.cpp
 )
 SET_COMPILER_FLAGS(latticecut)
 

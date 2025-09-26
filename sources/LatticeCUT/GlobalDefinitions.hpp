@@ -15,7 +15,7 @@ namespace LatticeCUT {
     constexpr l_float pi   = l_float(M_PI); // pi
 
     constexpr l_float fermi_function(l_float energy, l_float beta) noexcept {
-        if (beta == std::numeric_limits<l_float>::infinity()) {
+        if (beta < 0) { // negative values are treated as infinity
             return (energy != 0 ? (energy < 0 ? l_float{1} : l_float{}) : l_float{0.5} );
         }
         return 1. / (1. + std::exp(beta * energy));

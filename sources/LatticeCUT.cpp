@@ -2,7 +2,9 @@
 #include <mrock/info.h>
 #include <mrock/utility/OutputConvenience.hpp>
 #include <mrock/utility/info_to_json.hpp>
+#include <mrock/utility/FunctionTime.hpp>
 
+#include "LatticeCUT/T_C.hpp"
 #include "LatticeCUT/ModeHelper.hpp"
 #include "../build_header/info.h"
 
@@ -16,51 +18,88 @@ int main(int argc, char** argv) {
 	}
     mrock::utility::InputFileReader input(argv[1]);
 
-    ModeHelper modes(input);
-    const std::string output_folder = BASE_FOLDER + input.getString("output_folder") + "/" + modes.getModel().to_folder();
-	std::filesystem::create_directories(output_folder);
+	// Compute T_C
+	if (input.getBool("T_C")) {
+		std::cout << "Starting T_C computation..." << std::endl;
+		T_C tc(input);
+		mrock::utility::member_function_time_ms(tc, &T_C::compute);
 
-    nlohmann::json comments = {
-		{ "time", 				   	mrock::utility::time_stamp() },
-        { "dos_name",              	modes.getModel().dos_name },
-		{ "g", 					   	modes.getModel().phonon_coupling_in },
-		{ "U",	                   	modes.getModel().local_interaction },
-        { "E_F", 				   	modes.getModel().fermi_energy },
-		{ "omega_D", 			   	modes.getModel().omega_debye_in },
-        { "N",              	   	modes.getModel().N },
-        { "Delta_max", 			   	modes.getModel().delta_max() },
-		{ "investigated_operator", 	static_cast<int>(modes.investigated_operator) }
-	};
+		nlohmann::json comments = {
+			{ "time", 				   	mrock::utility::time_stamp() },
+	        { "dos_name",              	tc.model.dos_name },
+			{ "g", 					   	tc.model.phonon_coupling_in },
+			{ "U",	                   	tc.model.local_interaction },
+	        { "E_F", 				   	tc.model.fermi_energy },
+			{ "omega_D", 			   	tc.model.omega_debye_in },
+	        { "N",              	   	tc.model.N } };
+		
+		nlohmann::json info_json = mrock::utility::generate_json<LatticeCUT::info>("lattice_cut_");
+		info_json.update(mrock::utility::generate_json<mrock::info>("mrock_"));
 
-    nlohmann::json info_json = mrock::utility::generate_json<LatticeCUT::info>("lattice_cut_");
-	info_json.update(mrock::utility::generate_json<mrock::info>("mrock_"));
-	
-	std::cout << "Saving data to " << output_folder << std::endl;
-	mrock::utility::saveString(info_json.dump(4), output_folder + "metadata.json.gz");
+		const std::string output_folder = BASE_FOLDER + input.getString("output_folder") + "/" + tc.to_folder();
+		std::filesystem::create_directories(output_folder);
+		std::cout << "Saving data to " << output_folder << std::endl;
+		mrock::utility::saveString(info_json.dump(4), output_folder + "metadata.json.gz");
 
-    /*
-	* Compute and output gap data
-	*/
-	nlohmann::json jDelta = {
-		{ "energies",	modes.getModel().energies.get_abscissa() },
-#ifndef UNIFORM_DISCRETIZATION
-		{ "inner_min",  modes.getModel().energies.inner_min },
-		{ "inner_max",  modes.getModel().energies.inner_max },
-#endif
-        { "dos",        modes.getModel().selector.get_raw_dos() },
-		{ "Delta", 	    modes.getModel().Delta.as_vector() }
-	};
-	jDelta.merge_patch(comments);
-	mrock::utility::saveString(jDelta.dump(4), output_folder + "gap.json.gz");
-
-    auto resolvents = modes.compute_collective_modes(250);
-	if (!resolvents.empty()) {
-		nlohmann::json jResolvents = {
-			{ "resolvents", resolvents },
-			{ "continuum_boundaries", modes.continuum_boundaries() }
+		nlohmann::json jT_C = {
+			{ "temperatures",		tc.temperatures },
+			{ "finite_gaps",		tc.finite_gaps } 
 		};
-		jResolvents.merge_patch(comments);
-		mrock::utility::saveString(jResolvents.dump(4),output_folder + "resolvents.json.gz");
+
+		jT_C.merge_patch(comments);
+		mrock::utility::saveString(jT_C.dump(4), output_folder + "T_C.json.gz");
+		std::cout << "T_C computation finished." << std::endl;
+	}
+
+	// Study collective excitations
+	if (input.getBool("collective_modes")) {
+	    ModeHelper modes(input);
+	    
+	    nlohmann::json comments = {
+			{ "time", 				   	mrock::utility::time_stamp() },
+	        { "dos_name",              	modes.getModel().dos_name },
+			{ "g", 					   	modes.getModel().phonon_coupling_in },
+			{ "U",	                   	modes.getModel().local_interaction },
+	        { "E_F", 				   	modes.getModel().fermi_energy },
+			{ "omega_D", 			   	modes.getModel().omega_debye_in },
+	        { "N",              	   	modes.getModel().N },
+	        { "Delta_max", 			   	modes.getModel().delta_max() },
+			{ "beta", 				   	modes.getModel().beta },
+			{ "investigated_operator", 	static_cast<int>(modes.investigated_operator) }
+		};
+
+	    nlohmann::json info_json = mrock::utility::generate_json<LatticeCUT::info>("lattice_cut_");
+		info_json.update(mrock::utility::generate_json<mrock::info>("mrock_"));
+
+		const std::string output_folder = BASE_FOLDER + input.getString("output_folder") + "/" + modes.getModel().to_folder();
+		std::filesystem::create_directories(output_folder);
+		std::cout << "Saving data to " << output_folder << std::endl;
+		mrock::utility::saveString(info_json.dump(4), output_folder + "metadata.json.gz");
+
+	    /*
+		* Compute and output gap data
+		*/
+		nlohmann::json jDelta = {
+			{ "energies",	modes.getModel().energies.get_abscissa() },
+	#ifndef UNIFORM_DISCRETIZATION
+			{ "inner_min",  modes.getModel().energies.inner_min },
+			{ "inner_max",  modes.getModel().energies.inner_max },
+	#endif
+	        { "dos",        modes.getModel().selector.get_raw_dos() },
+			{ "Delta", 	    modes.getModel().Delta.as_vector() }
+		};
+		jDelta.merge_patch(comments);
+		mrock::utility::saveString(jDelta.dump(4), output_folder + "gap.json.gz");
+
+	    auto resolvents = modes.compute_collective_modes(250);
+		if (!resolvents.empty()) {
+			nlohmann::json jResolvents = {
+				{ "resolvents", resolvents },
+				{ "continuum_boundaries", modes.continuum_boundaries() }
+			};
+			jResolvents.merge_patch(comments);
+			mrock::utility::saveString(jResolvents.dump(4),output_folder + "resolvents.json.gz");
+		}
 	}
 
     return 0;

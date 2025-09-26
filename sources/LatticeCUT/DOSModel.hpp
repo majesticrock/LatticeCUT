@@ -15,8 +15,8 @@ namespace LatticeCUT {
         typedef Eigen::VectorXd ParameterVector;
 
         const l_float phonon_coupling_in; ///< g_in
-        const l_float local_interaction; ///< in units of the hopping constant
-        const l_float fermi_energy; ///< in units of the hopping constant
+        const l_float local_interaction; ///< in units of W
+        const l_float fermi_energy; ///< in units of W
         const l_float omega_debye_in; ///< fraction of the bandwidth in which the phonon_coupling is active
         const int N; ///< Number of discretization points
         
@@ -27,6 +27,7 @@ namespace LatticeCUT {
         const l_float omega_debye; ///< used for calculations
         const l_float phonon_coupling; ///< g_in / \int_(E_F-omega_D)^(E_F+omega_D) rho(E) dE
         const l_float local_interaction_energy_units; ///< g_in / \int_(E_F-omega_D)^(E_F+omega_D) rho(E) dE
+        l_float beta; ///< inverse temperature in units of W
 
         ModelAttributes<l_float> Delta;
 

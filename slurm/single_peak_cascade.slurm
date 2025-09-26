@@ -4,8 +4,8 @@
 ## or look up the slurm documentation under https://slurm.schedmed.com/sbatch.html
 
 ## Mandatory:
-#SBATCH --job-name=fcc_cut
-#SBATCH --output=/home/althueser/phd/cpp/LatticeCUT/output_fcc.txt
+#SBATCH --job-name=sc_cut
+#SBATCH --output=/home/althueser/phd/cpp/LatticeCUT/output_sc.txt
 #SBATCH --time=8:00:00         ## maximum runtime; hours:minutes:seconds
 #SBATCH --partition=med        ## choose queue
 
@@ -32,7 +32,7 @@ echo "--- START ---"
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 ## execute binary using mpirun on the allocated computation resource; the number of cores is $
-./build_CascadeLake/latticecut params/cluster/fcc.config
+./build_CascadeLake/latticecut params/cluster/single_peak.config
 
 echo "--- END ---"
 date

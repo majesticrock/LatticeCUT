@@ -6,8 +6,8 @@
 ## Mandatory:
 #SBATCH --job-name=sc_cut
 #SBATCH --output=/home/althueser/phd/cpp/LatticeCUT/output_sc.txt
-#SBATCH --time=48:00:00         ## maximum runtime; hours:minutes:seconds
-#SBATCH --partition=long        ## choose queue
+#SBATCH --time=8:00:00         ## maximum runtime; hours:minutes:seconds
+#SBATCH --partition=med        ## choose queue
 
 #SBATCH --ntasks=1              ## sets number of total mpi processes
 #SBATCH --tasks-per-node=1      ## mpi processes spawned per node
