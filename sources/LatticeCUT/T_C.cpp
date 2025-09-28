@@ -3,8 +3,9 @@
 #include <mrock/utility/Selfconsistency/BroydenSolver.hpp>
 #include <mrock/utility/better_to_string.hpp>
 
-constexpr double TARGET_DT = 1e-4;
-constexpr double INITIAL_DT = 0.01;
+constexpr double TARGET_DT = 1e-5;
+constexpr double INITIAL_DT = 0.02;
+constexpr double ZERO_EPS = 1e-10;
 
 namespace LatticeCUT {
     T_C::T_C(mrock::utility::InputFileReader &input)
@@ -33,7 +34,7 @@ namespace LatticeCUT {
             if (!model.Delta.converged) {
                 std::cerr << "Self-consistency not achieved while computing T_C! at beta=" << model.beta << std::endl;
             }
-            else if (!is_zero(delta_max)) {
+            else if (std::abs(delta_max) > ZERO_EPS) {
                 temperatures.push_back(T);
                 finite_gaps.push_back(model.Delta.as_vector());
                 T += current_dT;
@@ -41,11 +42,12 @@ namespace LatticeCUT {
             else {
                 model.Delta.fill_with(finite_gaps.back());
                 T -= current_dT;
+                if (T < 0) T = 0; // In rare cases, floating point precision may casue T ~ -1e-16
                 current_dT /= 5.;
                 T += current_dT;
             }
             model.beta = 1. / T;
-        } while((!is_zero(delta_max) || current_dT >= TARGET_DT) && model.Delta.converged);
+        } while((std::abs(delta_max) > ZERO_EPS || current_dT >= TARGET_DT) && model.Delta.converged);
 
         std::cout << "Finished T_C computation at T_C = " << T << " (beta=" << model.beta << ") in " << temperatures.size() << "iterations." << std::endl;
     }
