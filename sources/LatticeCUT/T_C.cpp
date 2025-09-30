@@ -2,12 +2,32 @@
 #include <mrock/utility/Selfconsistency/IterativeSolver.hpp>
 #include <mrock/utility/Selfconsistency/BroydenSolver.hpp>
 #include <mrock/utility/better_to_string.hpp>
+#include <algorithm>
 
 constexpr double TARGET_DT = 1e-5;
 constexpr double INITIAL_DT = 0.02;
 constexpr double ZERO_EPS = 1e-10;
 
 namespace LatticeCUT {
+    template<class T>
+    void permute(std::vector<T>& input, const std::vector<size_t>& indices)
+    {
+        std::vector<bool> done(input.size());
+        for (size_t i = 0U; i < input.size(); ++i) {
+            if (done[i]) continue;
+
+            done[i] = true;
+            size_t prev_j = i;
+            size_t j = indices[i];
+            while(i != j) {
+                std::swap(input[prev_j], input[j]);
+                done[j] = true;
+                prev_j = j;
+                j = indices[j];
+            }
+        }
+    };
+
     T_C::T_C(mrock::utility::InputFileReader &input)
         : model(DOSModel(input))
     { 
@@ -20,34 +40,69 @@ namespace LatticeCUT {
 #ifdef _iterative_selfconsistency
 		auto solver = mrock::utility::Selfconsistency::make_iterative<l_float>(&model, &(model.Delta));
 #else
-		auto solver = mrock::utility::Selfconsistency::make_broyden<l_float>(&model, &(model.Delta), 200);
+		auto solver = mrock::utility::Selfconsistency::make_broyden<l_float>(&model, &(model.Delta), 300);
 #endif
         l_float T{};
         l_float current_dT{INITIAL_DT};
         l_float delta_max{};
+        l_float last_delta{};
+
         model.beta = -1.;
+        solver.compute(false);
+        delta_max = model.delta_max();
+        last_delta = delta_max;
+
+        temperatures.emplace_back(T);
+        finite_gaps.emplace_back(model.Delta.as_vector());
+
         do {
+            T += current_dT;
+            model.beta = 1. / T;
+
+            if (std::find_if(temperatures.begin(), temperatures.end(), [&T](const l_float Tvec) -> bool { return is_zero(Tvec-T); }) != temperatures.end()) {
+                continue;
+            }
             std::cout << "Working... T=" << T << std::endl;
             model.Delta.converged = false;
             solver.compute(false);
             delta_max = model.delta_max();
+            std::cout << "\t\tDelta_max=" << delta_max << std::endl;
+
             if (!model.Delta.converged) {
                 std::cerr << "Self-consistency not achieved while computing T_C! at beta=" << model.beta << std::endl;
+                break;
             }
-            else if (std::abs(delta_max) > ZERO_EPS) {
-                temperatures.push_back(T);
-                finite_gaps.push_back(model.Delta.as_vector());
-                T += current_dT;
+
+            if (std::abs(delta_max) > ZERO_EPS) { // the is_zero function is sometimes too precise
+                temperatures.emplace_back(T);
+                finite_gaps.emplace_back(model.Delta.as_vector());
+            }
+            if (delta_max < 0.85 * last_delta && current_dT >= TARGET_DT) {
+                T -= current_dT;
+                if (T < 0) T = 0.0; // circumvent rare case floating point arithmetic issues
+                current_dT *= 0.2;
+            }
+            if (std::abs(delta_max) > ZERO_EPS) {
+                last_delta = delta_max;
             }
             else {
                 model.Delta.fill_with(finite_gaps.back());
-                T -= current_dT;
-                if (T < 0) T = 0; // In rare cases, floating point precision may casue T ~ -1e-16
-                current_dT /= 5.;
-                T += current_dT;
             }
-            model.beta = 1. / T;
-        } while((std::abs(delta_max) > ZERO_EPS || current_dT >= TARGET_DT) && model.Delta.converged);
+
+        } while(std::abs(delta_max) > ZERO_EPS || current_dT >= TARGET_DT);
+
+        std::vector<size_t> indices(temperatures.size());
+        std::iota(indices.begin(), indices.end(), size_t{});
+        std::sort(indices.begin(), indices.end(), [&](size_t A, size_t B) -> bool { return temperatures[A] < temperatures[B]; });
+        permute(temperatures, indices);
+        permute(finite_gaps, indices);
+
+        max_gaps.resize(finite_gaps.size());
+        for (size_t i = 0U; i < max_gaps.size(); ++i) {
+            max_gaps[i] = std::ranges::max(finite_gaps[i], [](const l_float A, const l_float B) -> bool { 
+                    return std::abs(A) < std::abs(B);
+                });
+        }
 
         std::cout << "Finished T_C computation at T_C = " << T << " (beta=" << model.beta << ") in " << temperatures.size() << "iterations." << std::endl;
     }

@@ -11,6 +11,7 @@ namespace LatticeCUT {
         DOSModel model;
         std::vector<l_float> temperatures;
         std::vector<std::vector<l_float>> finite_gaps;
+        std::vector<l_float> max_gaps;
 
         T_C(mrock::utility::InputFileReader& input);
 

@@ -43,11 +43,16 @@ int main(int argc, char** argv) {
 
 		nlohmann::json jT_C = {
 			{ "temperatures",		tc.temperatures },
-			{ "finite_gaps",		tc.finite_gaps } 
+			{ "max_gaps", 			tc.max_gaps }
 		};
+		// All gaps are seperated because the data is rarely needed and takes a lot of time loading
+		nlohmann::json jAllGaps = { { "finite_gaps",		tc.finite_gaps } };
 
 		jT_C.merge_patch(comments);
 		mrock::utility::saveString(jT_C.dump(4), output_folder + "T_C.json.gz");
+
+		jAllGaps.merge_patch(comments);
+		mrock::utility::saveString(jAllGaps.dump(4), output_folder + "all_gaps.json.gz");
 		std::cout << "T_C computation finished." << std::endl;
 	}
 
