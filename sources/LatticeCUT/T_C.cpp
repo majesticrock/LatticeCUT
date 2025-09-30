@@ -49,7 +49,15 @@ namespace LatticeCUT {
 
         model.beta = -1.;
         solver.compute(false);
+        // the delta_max function uses the absolute value
         delta_max = model.delta_max();
+        // use U(1) symmetry to unifiy delta_max > 0
+        if (delta_max < 0) {
+            for (auto& d : model.Delta) {
+                d *= -1;
+            }
+            delta_max *= -1;
+        }
         last_delta = delta_max;
 
         temperatures.emplace_back(T);
@@ -99,9 +107,9 @@ namespace LatticeCUT {
 
         max_gaps.resize(finite_gaps.size());
         for (size_t i = 0U; i < max_gaps.size(); ++i) {
-            max_gaps[i] = std::ranges::max(finite_gaps[i], [](const l_float A, const l_float B) -> bool { 
+            max_gaps[i] = std::abs(std::ranges::max(finite_gaps[i], [](const l_float A, const l_float B) -> bool { 
                     return std::abs(A) < std::abs(B);
-                });
+                }));
         }
 
         std::cout << "Finished T_C computation at T_C = " << T << " (beta=" << model.beta << ") in " << temperatures.size() << "iterations." << std::endl;
