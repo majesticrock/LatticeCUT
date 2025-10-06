@@ -76,7 +76,18 @@ int main(int argc, char** argv) {
 	    nlohmann::json info_json = mrock::utility::generate_json<LatticeCUT::info>("lattice_cut_");
 		info_json.update(mrock::utility::generate_json<mrock::info>("mrock_"));
 
-		const std::string output_folder = BASE_FOLDER + input.getString("output_folder") + "/" + modes.getModel().to_folder();
+		std::string mode_dir;
+		if (input.getInt("investigated_operator") == 1) {
+			mode_dir = "confined/";
+		}
+		else if (input.getInt("investigated_operator") == 2) {
+			mode_dir = "double_confined/";
+		}
+		else {
+			mode_dir = "/";
+		}
+		const std::string output_folder = BASE_FOLDER + input.getString("output_folder") +
+			mode_dir + modes.getModel().to_folder();
 		std::filesystem::create_directories(output_folder);
 		std::cout << "Saving data to " << output_folder << std::endl;
 		mrock::utility::saveString(info_json.dump(4), output_folder + "metadata.json.gz");
