@@ -113,6 +113,7 @@ namespace LatticeCUT {
 			_expecs.emplace(mrock::symbolic_operators::Number_Type, std::vector<l_float>(N));
 			_expecs.emplace(mrock::symbolic_operators::SC_Type, std::vector<l_float>(N));
 		}
+#pragma omp parallel for
 		for (int k = 0; k < N; ++k) {
 			_expecs.at(mrock::symbolic_operators::Number_Type)[k] = this->occupation_index(k);
 			_expecs.at(mrock::symbolic_operators::SC_Type)[k] = this->sc_expectation_value_index(k);

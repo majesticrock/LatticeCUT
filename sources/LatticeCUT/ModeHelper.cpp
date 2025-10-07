@@ -262,6 +262,7 @@ namespace LatticeCUT {
 		auto solver = mrock::utility::Selfconsistency::make_broyden<l_float>(model.get(), &model->Delta, 200);
 #endif
 		solver.compute(true);
+		solver.free_memory();
 		std::cout << "\n########################################\n  ---  Delta_max = " << model->delta_max() << "  ---\n########################################\n" << std::endl;
 	}
 }

@@ -5,7 +5,7 @@
 #include <algorithm>
 
 constexpr double TARGET_DT = 1e-5;
-constexpr double INITIAL_DT = 0.02;
+constexpr double INITIAL_DT = 5e-3;
 constexpr double ZERO_EPS = 1e-10;
 
 namespace LatticeCUT {
@@ -31,8 +31,8 @@ namespace LatticeCUT {
     T_C::T_C(mrock::utility::InputFileReader &input)
         : model(DOSModel(input))
     { 
-        temperatures.reserve(200);
-        finite_gaps.reserve(200);
+        temperatures.reserve(500);
+        finite_gaps.reserve(500);
     }
 
     void T_C::compute()
