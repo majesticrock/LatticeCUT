@@ -21,11 +21,18 @@ namespace LatticeCUT {
         local_interaction_energy_units{local_interaction / selector.average_in_range(fermi_energy - omega_debye, fermi_energy + omega_debye)},
         beta{ input.getDouble("beta") },
         Delta(decltype(Delta)::FromAllocator([&](int k) -> l_float {
-			const l_float magnitude = (k < omega_debye_in * N || k > omega_debye_in * N) ? 0.01 : 0.1;
-			if (k < N) {
-				return magnitude;
-			}
-			return l_float{};
+            const double index_at_ef = 0.5 * N * (fermi_energy + 1); // only used for comparison, so double is fine
+            const double index_at_0 = N / 2;
+            const double range = omega_debye_in * N;
+            
+            double magnitude = local_interaction > 0.0 ? -0.001 : 0.001;
+            if (k < index_at_ef + range && k > index_at_ef - range) {
+                magnitude += 0.1;
+            }
+            else if (k < index_at_0 + range && k > index_at_0 - range) {
+                magnitude += local_interaction > 0.0 ? 0.1 : -0.1;
+            }
+            return magnitude;
 			}, N))
     {
     }

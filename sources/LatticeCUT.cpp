@@ -106,6 +106,7 @@ int main(int argc, char** argv) {
 		};
 		jDelta.merge_patch(comments);
 		mrock::utility::saveString(jDelta.dump(4), output_folder + "gap.json.gz");
+		std::cout << "Order parameter data saved!" << std::endl;
 
 	    auto resolvents = modes.compute_collective_modes(400);
 		if (!resolvents.empty()) {
