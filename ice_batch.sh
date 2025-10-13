@@ -59,7 +59,7 @@ for NEW_VALUE in "${NEW_VALUES[@]}"; do
   # Create the slurm file with modifications
   slurm_path="auto_generated_${CURRENT_TIME}/$NEW_NAME.slurm"
   sed -e "s|#SBATCH --job-name=${LATTICE_TYPE}_cut|#SBATCH --job-name=${LATTICE_TYPE}_${NEW_NAME}_${CURRENT_TIME}|" \
-      -e "s|#SBATCH --output=/home/althueser/phd/cpp/LatticeCUT/output_${LATTICE_TYPE}.txt|#SBATCH --output=/home/althueser/phd/cpp/LatticeCUT/${CURRENT_TIME}_output_$NEW_NAME.txt|" \
+      -e "s|#SBATCH --output=/home/althueser/phd/cpp/LatticeCUT/output_${LATTICE_TYPE}.txt|#SBATCH --output=/home/althueser/phd/cpp/LatticeCUT/output_${CURRENT_TIME}_$NEW_NAME.txt|" \
       -e "s|^#SBATCH --constraint=.*|#SBATCH --constraint=${arch}|" \
       -e "s|./build_.*/latticecut .*|./build_${arch}/latticecut auto_generated_${CURRENT_TIME}/$NEW_NAME.config|" \
       slurm/${LATTICE_TYPE}.slurm > "$slurm_path"
