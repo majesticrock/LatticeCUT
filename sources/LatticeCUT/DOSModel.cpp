@@ -30,7 +30,7 @@ namespace LatticeCUT {
                 magnitude += 0.1;
             }
             else if (k < index_at_0 + range && k > index_at_0 - range) {
-                magnitude += local_interaction > 0.0 ? 0.1 : -0.1;
+                magnitude += local_interaction > 0.0 ? -0.1 : 0.1;
             }
             return magnitude;
 			}, N))
