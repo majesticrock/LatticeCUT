@@ -7,6 +7,7 @@
 constexpr double TARGET_DT = 1e-5;
 constexpr double INITIAL_DT = 5e-3;
 constexpr double ZERO_EPS = 1e-10;
+constexpr double DELTA_F_EPS = 1e-4;
 
 namespace LatticeCUT {
     template<class T>
@@ -46,8 +47,11 @@ namespace LatticeCUT {
         l_float current_dT{INITIAL_DT};
         l_float delta_max{};
         l_float last_delta{};
+        l_float last_delta_F{};
+        bool did_last_converge{true};
+        const int index_at_ef = static_cast<int>(0.5 * model.N * (model.fermi_energy + 1));
 
-        model.beta = -1.;
+        model.beta = is_zero(T) ? -1. : 1. / T;
         solver.compute(false);
         // the delta_max function uses the absolute value
         delta_max = model.delta_max();
@@ -59,44 +63,104 @@ namespace LatticeCUT {
             delta_max *= -1;
         }
         last_delta = delta_max;
+        last_delta_F = model.Delta[index_at_ef];
+
+        std::cout << "Starting T_c computation at T=" << T << " (beta=" << model.beta << ")" << std::endl;
+        std::cout << "\t\tDelta_max=" << delta_max << "\tDelta_F=" << model.Delta[index_at_ef] << std::endl;
 
         temperatures.emplace_back(T);
         finite_gaps.emplace_back(model.Delta.as_vector());
+
+        auto increase_dT = [&]() -> bool {
+            if (current_dT >= 0.5 * INITIAL_DT) return false;
+            if (is_zero(last_delta)) return false;
+            if (std::abs((delta_max - last_delta) / last_delta) > 0.05) return false; 
+            if (std::abs(last_delta_F) < DELTA_F_EPS * delta_max) {
+                return std::abs(model.Delta[index_at_ef]) < DELTA_F_EPS * delta_max;
+            }
+            return (std::abs(model.Delta[index_at_ef] - last_delta_F) / last_delta_F) < 0.05; 
+        };
+        auto decrease_dT = [&]() -> bool {
+            if (current_dT < TARGET_DT) return false;
+            if (delta_max < 0.85 * last_delta) return true;
+            if (std::abs(model.Delta[index_at_ef]) < 0.85 * std::abs(last_delta_F)) {
+                return std::abs(model.Delta[index_at_ef]) > DELTA_F_EPS * delta_max;
+            }
+            return false;
+        };
+        std::cout << std::setprecision(6) << std::endl;
 
         do {
             T += current_dT;
             model.beta = 1. / T;
 
-            if (std::find_if(temperatures.begin(), temperatures.end(), [&T](const l_float Tvec) -> bool { return is_zero(Tvec-T); }) != temperatures.end()) {
+            const auto found_iter = std::find_if(temperatures.begin(), temperatures.end(), [&T](const l_float Tvec) -> bool { 
+                    return std::abs(Tvec-T) < TARGET_DT; }
+                );
+            if (found_iter != temperatures.end()) {
+                const size_t index = std::distance(temperatures.begin(), found_iter);
+
+                last_delta = std::abs(std::ranges::max(finite_gaps[index], [](const double lhs, const double rhs){ return std::abs(lhs) < std::abs(rhs);}));
+                last_delta_F = finite_gaps[index][index_at_ef];
                 continue;
             }
-            std::cout << "Working... T=" << T << std::endl;
+            std::cout << "Working... T=" << T << "    current dT=" << current_dT << std::endl;
             model.Delta.converged = false;
             solver.compute(false);
             delta_max = model.delta_max();
-            std::cout << "\t\tDelta_max=" << delta_max << std::endl;
+            std::cout << "\t\tDelta_max=" << delta_max << "\tDelta_F=" << model.Delta[index_at_ef] << std::endl;
 
             if (!model.Delta.converged) {
-                std::cerr << "Self-consistency not achieved while computing T_C! at beta=" << model.beta << std::endl;
-                break;
+                std::cerr << "Self-consistency not achieved while computing T_C! Retrying... at beta=" << model.beta << std::endl;
+                solver.compute(false);
+                if (!model.Delta.converged) {
+		        	std::cerr << "No convergence even after retry. Skipping data point." << std::endl;
+                    if (!did_last_converge) {
+                        break;
+                    }
+                    else {
+                        did_last_converge = false;
+                        continue;
+                    }
+		        }
             }
 
-            if (std::abs(delta_max) > ZERO_EPS) { // the is_zero function is sometimes too precise
-                temperatures.emplace_back(T);
-                finite_gaps.emplace_back(model.Delta.as_vector());
-            }
-            if (delta_max < 0.85 * last_delta && current_dT >= TARGET_DT) {
+            if (decrease_dT()) {
+                if (std::abs(delta_max) > ZERO_EPS) { // the is_zero function is sometimes too precise
+                    temperatures.emplace_back(T);
+                    finite_gaps.emplace_back(model.Delta.as_vector());
+                }
+
+                if ((std::abs(last_delta_F) > ZERO_EPS) && (std::abs(finite_gaps.back()[index_at_ef]) < ZERO_EPS)) {
+                    model.Delta.fill_with(*(finite_gaps.end() - 2));
+                }
+                else {
+                    model.Delta.fill_with(finite_gaps.back());
+                }
+                
+
                 T -= current_dT;
                 if (T < 0) T = 0.0; // circumvent rare case floating point arithmetic issues
                 current_dT *= 0.2;
-            }
-            if (std::abs(delta_max) > ZERO_EPS) {
-                last_delta = delta_max;
+                // As we say in German: man muss ja nicht gleich uebertreiben...
+                if (current_dT < 0.5 * TARGET_DT) current_dT = 0.5 * TARGET_DT;
             }
             else {
-                model.Delta.fill_with(finite_gaps.back());
-            }
+                if (increase_dT()) {
+                    current_dT *= 2.0;
+                }
+                last_delta = delta_max;
+                last_delta_F = model.Delta[index_at_ef];
 
+                if (std::abs(delta_max) > ZERO_EPS) { // the is_zero function is sometimes too precise
+                    temperatures.emplace_back(T);
+                    finite_gaps.emplace_back(model.Delta.as_vector());
+                }
+                else {
+                    model.Delta.fill_with(finite_gaps.back());
+                }
+                did_last_converge = true;
+            }
         } while(std::abs(delta_max) > ZERO_EPS || current_dT >= TARGET_DT);
 
         std::vector<size_t> indices(temperatures.size());
@@ -112,7 +176,7 @@ namespace LatticeCUT {
                 }));
         }
 
-        std::cout << "Finished T_C computation at T_C = " << T << " (beta=" << model.beta << ") in " << temperatures.size() << "iterations." << std::endl;
+        std::cout << "Finished T_C computation at T_C = " << T << " (beta=" << 1./(T > 0.0 ? T : -1.) << ") in " << temperatures.size() << "iterations." << std::endl;
     }
 
     std::string T_C::to_folder() const
