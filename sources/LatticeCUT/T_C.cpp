@@ -46,6 +46,8 @@ namespace LatticeCUT {
         l_float current_dT{INITIAL_DT};
         l_float delta_max{};
         l_float last_delta{};
+        l_float last_delta_F{};
+        const int index_at_ef = static_cast<int>(0.5 * model.N * (model.fermi_energy + 1));
 
         model.beta = -1.;
         solver.compute(false);
@@ -59,6 +61,7 @@ namespace LatticeCUT {
             delta_max *= -1;
         }
         last_delta = delta_max;
+        last_delta_F = model.Delta[index_at_ef];
 
         temperatures.emplace_back(T);
         finite_gaps.emplace_back(model.Delta.as_vector());
@@ -85,13 +88,17 @@ namespace LatticeCUT {
                 temperatures.emplace_back(T);
                 finite_gaps.emplace_back(model.Delta.as_vector());
             }
-            if (delta_max < 0.85 * last_delta && current_dT >= TARGET_DT) {
+            if ((delta_max < 0.85 * last_delta || model.Delta[index_at_ef] < 0.85 * last_delta_F) && current_dT >= TARGET_DT) {
                 T -= current_dT;
                 if (T < 0) T = 0.0; // circumvent rare case floating point arithmetic issues
                 current_dT *= 0.2;
             }
+            if ((delta_max > 0.95 * last_delta || model.Delta[index_at_ef] > 0.95 * last_delta_F) && current_dT < 0.5 * INITIAL_DT) {
+                current_dT *= 2.0;
+            }
             if (std::abs(delta_max) > ZERO_EPS) {
                 last_delta = delta_max;
+                last_delta_F = model.Delta[index_at_ef];
             }
             else {
                 model.Delta.fill_with(finite_gaps.back());
