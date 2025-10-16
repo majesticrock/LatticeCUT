@@ -80,8 +80,9 @@ namespace LatticeCUT {
             std::cout << "\t\tDelta_max=" << delta_max << std::endl;
 
             if (!model.Delta.converged) {
-                std::cerr << "Self-consistency not achieved while computing T_C! at beta=" << model.beta << std::endl;
-                break;
+                std::cerr << "Self-consistency not achieved while computing T_C! Retrying..." << model.beta << std::endl;
+                solver.compute(false);
+                continue;
             }
 
             if (std::abs(delta_max) > ZERO_EPS) { // the is_zero function is sometimes too precise
