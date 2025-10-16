@@ -7,6 +7,7 @@
 constexpr double TARGET_DT = 1e-5;
 constexpr double INITIAL_DT = 5e-3;
 constexpr double ZERO_EPS = 1e-10;
+constexpr double DELTA_F_EPS = 1e-4;
 
 namespace LatticeCUT {
     template<class T>
@@ -49,7 +50,7 @@ namespace LatticeCUT {
         l_float last_delta_F{};
         const int index_at_ef = static_cast<int>(0.5 * model.N * (model.fermi_energy + 1));
 
-        model.beta = -1.;
+        model.beta = is_zero(T) ? -1. : 1. / T;
         solver.compute(false);
         // the delta_max function uses the absolute value
         delta_max = model.delta_max();
@@ -66,6 +67,25 @@ namespace LatticeCUT {
         temperatures.emplace_back(T);
         finite_gaps.emplace_back(model.Delta.as_vector());
 
+        auto increase_dT = [&]() -> bool {
+            if (current_dT >= 0.5 * INITIAL_DT) return false;
+            if (is_zero(last_delta)) return false;
+            if (std::abs((delta_max - last_delta) / last_delta) > 0.05) return false; 
+            if (std::abs(last_delta_F) < DELTA_F_EPS * delta_max) {
+                return std::abs(model.Delta[index_at_ef]) < DELTA_F_EPS * delta_max;
+            }
+            return (std::abs(model.Delta[index_at_ef] - last_delta_F) / last_delta_F) < 0.05; 
+        };
+        auto decrease_dT = [&]() -> bool {
+            if (current_dT < TARGET_DT) return false;
+            if (delta_max < 0.85 * last_delta) return true;
+            if (std::abs(model.Delta[index_at_ef]) < 0.85 * std::abs(last_delta_F)) {
+                return std::abs(model.Delta[index_at_ef]) > DELTA_F_EPS * delta_max;
+            }
+            return false;
+        };
+        std::cout << std::setprecision(6) << std::endl;
+
         do {
             T += current_dT;
             model.beta = 1. / T;
@@ -80,11 +100,11 @@ namespace LatticeCUT {
                 last_delta_F = finite_gaps[index][index_at_ef];
                 continue;
             }
-            std::cout << "Working... T=" << T << std::endl;
+            std::cout << "Working... T=" << T << "    current dT=" << current_dT << std::endl;
             model.Delta.converged = false;
             solver.compute(false);
             delta_max = model.delta_max();
-            std::cout << "\t\tDelta_max=" << delta_max << std::endl;
+            std::cout << "\t\tDelta_max=" << delta_max << "\tDelta_F=" << model.Delta[index_at_ef] << std::endl;
 
             if (!model.Delta.converged) {
                 std::cerr << "Self-consistency not achieved while computing T_C! Retrying... at beta=" << model.beta << std::endl;
@@ -95,10 +115,12 @@ namespace LatticeCUT {
 		        }
             }
 
-            if ((delta_max < 0.85 * last_delta || model.Delta[index_at_ef] < 0.85 * last_delta_F) && current_dT >= TARGET_DT) {
+            if (decrease_dT()) {
                 T -= current_dT;
                 if (T < 0) T = 0.0; // circumvent rare case floating point arithmetic issues
                 current_dT *= 0.2;
+                // As we say in German: man muss ja nicht gleich uebertreiben...
+                if (current_dT < 0.5 * TARGET_DT) current_dT = 0.5 * TARGET_DT;
 
                 if (std::abs(delta_max) > ZERO_EPS) { // the is_zero function is sometimes too precise
                     temperatures.emplace_back(T);
@@ -106,7 +128,7 @@ namespace LatticeCUT {
                 }
             }
             else {
-                if ((delta_max > 0.95 * last_delta || model.Delta[index_at_ef] > 0.95 * last_delta_F) && current_dT < 0.5 * INITIAL_DT) {
+                if (increase_dT()) {
                     current_dT *= 2.0;
                 }
                 last_delta = delta_max;
