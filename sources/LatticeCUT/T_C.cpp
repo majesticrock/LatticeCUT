@@ -48,6 +48,7 @@ namespace LatticeCUT {
         l_float delta_max{};
         l_float last_delta{};
         l_float last_delta_F{};
+        bool did_last_converge{true};
         const int index_at_ef = static_cast<int>(0.5 * model.N * (model.fermi_energy + 1));
 
         model.beta = is_zero(T) ? -1. : 1. / T;
@@ -111,7 +112,13 @@ namespace LatticeCUT {
                 solver.compute(false);
                 if (!model.Delta.converged) {
 		        	std::cerr << "No convergence even after retry. Skipping data point." << std::endl;
-		        	continue;
+                    if (!did_last_converge) {
+                        break;
+                    }
+                    else {
+                        did_last_converge = false;
+                        continue;
+                    }
 		        }
             }
 
@@ -140,6 +147,7 @@ namespace LatticeCUT {
                 }
 
                 model.Delta.fill_with(finite_gaps.back());
+                did_last_converge = true;
             }
         } while(std::abs(delta_max) > ZERO_EPS || current_dT >= TARGET_DT);
 
