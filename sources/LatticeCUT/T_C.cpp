@@ -83,31 +83,36 @@ namespace LatticeCUT {
                 std::cerr << "Self-consistency not achieved while computing T_C! Retrying... at beta=" << model.beta << std::endl;
                 solver.compute(false);
                 if (!model.Delta.converged) {
-			std::cerr << "No convergence even after retry. Skipping data point." << std::endl;
-			continue;
-		}
+		        	std::cerr << "No convergence even after retry. Skipping data point." << std::endl;
+		        	continue;
+		        }
             }
 
-            if (std::abs(delta_max) > ZERO_EPS) { // the is_zero function is sometimes too precise
-                temperatures.emplace_back(T);
-                finite_gaps.emplace_back(model.Delta.as_vector());
-            }
+            
             if ((delta_max < 0.85 * last_delta || model.Delta[index_at_ef] < 0.85 * last_delta_F) && current_dT >= TARGET_DT) {
                 T -= current_dT;
                 if (T < 0) T = 0.0; // circumvent rare case floating point arithmetic issues
                 current_dT *= 0.2;
-            }
-            if ((delta_max > 0.95 * last_delta || model.Delta[index_at_ef] > 0.95 * last_delta_F) && current_dT < 0.5 * INITIAL_DT) {
-                current_dT *= 2.0;
-            }
-            if (std::abs(delta_max) > ZERO_EPS) {
-                last_delta = delta_max;
-                last_delta_F = model.Delta[index_at_ef];
+
+                if (std::abs(delta_max) > ZERO_EPS) { // the is_zero function is sometimes too precise
+                    temperatures.emplace_back(T);
+                    finite_gaps.emplace_back(model.Delta.as_vector());
+                }
             }
             else {
+                if ((delta_max > 0.95 * last_delta || model.Delta[index_at_ef] > 0.95 * last_delta_F) && current_dT < 0.5 * INITIAL_DT) {
+                    current_dT *= 2.0;
+                }
+                last_delta = delta_max;
+                last_delta_F = model.Delta[index_at_ef];
+
+                if (std::abs(delta_max) > ZERO_EPS) { // the is_zero function is sometimes too precise
+                    temperatures.emplace_back(T);
+                    finite_gaps.emplace_back(model.Delta.as_vector());
+                }
+
                 model.Delta.fill_with(finite_gaps.back());
             }
-
         } while(std::abs(delta_max) > ZERO_EPS || current_dT >= TARGET_DT);
 
         std::vector<size_t> indices(temperatures.size());
