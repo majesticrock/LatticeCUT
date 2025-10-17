@@ -94,7 +94,7 @@ namespace LatticeCUT {
             const auto found_iter = std::find_if(temperatures.begin(), temperatures.end(), [&T](const l_float Tvec) -> bool { 
                     return std::abs(Tvec-T) < TARGET_DT; }
                 );
-            if (found_iter == temperatures.end()) {
+            if (found_iter != temperatures.end()) {
                 const size_t index = std::distance(temperatures.begin(), found_iter);
 
                 last_delta = std::ranges::max(finite_gaps[index], [](const double lhs, const double rhs){ return std::abs(lhs) < std::abs(rhs);});
@@ -123,16 +123,16 @@ namespace LatticeCUT {
             }
 
             if (decrease_dT()) {
+                if (std::abs(delta_max) > ZERO_EPS) { // the is_zero function is sometimes too precise
+                    temperatures.emplace_back(T);
+                    finite_gaps.emplace_back(model.Delta.as_vector());
+                }
+
                 T -= current_dT;
                 if (T < 0) T = 0.0; // circumvent rare case floating point arithmetic issues
                 current_dT *= 0.2;
                 // As we say in German: man muss ja nicht gleich uebertreiben...
                 if (current_dT < 0.5 * TARGET_DT) current_dT = 0.5 * TARGET_DT;
-
-                if (std::abs(delta_max) > ZERO_EPS) { // the is_zero function is sometimes too precise
-                    temperatures.emplace_back(T);
-                    finite_gaps.emplace_back(model.Delta.as_vector());
-                }
             }
             else {
                 if (increase_dT()) {
