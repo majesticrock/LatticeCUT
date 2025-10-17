@@ -94,7 +94,7 @@ namespace LatticeCUT {
             const auto found_iter = std::find_if(temperatures.begin(), temperatures.end(), [&T](const l_float Tvec) -> bool { 
                     return std::abs(Tvec-T) < TARGET_DT; }
                 );
-            if (found_iter != temperatures.end()) {
+            if (found_iter == temperatures.end()) {
                 const size_t index = std::distance(temperatures.begin(), found_iter);
 
                 last_delta = std::ranges::max(finite_gaps[index], [](const double lhs, const double rhs){ return std::abs(lhs) < std::abs(rhs);});
