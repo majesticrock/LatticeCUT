@@ -97,7 +97,7 @@ namespace LatticeCUT {
             if (found_iter != temperatures.end()) {
                 const size_t index = std::distance(temperatures.begin(), found_iter);
 
-                last_delta = std::ranges::max(finite_gaps[index], [](const double lhs, const double rhs){ return std::abs(lhs) < std::abs(rhs);});
+                last_delta = std::abs(std::ranges::max(finite_gaps[index], [](const double lhs, const double rhs){ return std::abs(lhs) < std::abs(rhs);}));
                 last_delta_F = finite_gaps[index][index_at_ef];
                 continue;
             }
