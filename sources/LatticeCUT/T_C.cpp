@@ -65,6 +65,9 @@ namespace LatticeCUT {
         last_delta = delta_max;
         last_delta_F = model.Delta[index_at_ef];
 
+        std::cout << "Starting T_c computation at T=" << T << " (beta=" << model.beta << ")" << std::endl;
+        std::cout << "\t\tDelta_max=" << delta_max << "\tDelta_F=" << model.Delta[index_at_ef] << std::endl;
+
         temperatures.emplace_back(T);
         finite_gaps.emplace_back(model.Delta.as_vector());
 
@@ -128,6 +131,14 @@ namespace LatticeCUT {
                     finite_gaps.emplace_back(model.Delta.as_vector());
                 }
 
+                if ((std::abs(last_delta_F) > ZERO_EPS) && (std::abs(finite_gaps.back()[index_at_ef]) < ZERO_EPS)) {
+                    model.Delta.fill_with(*(finite_gaps.end() - 2));
+                }
+                else {
+                    model.Delta.fill_with(finite_gaps.back());
+                }
+                
+
                 T -= current_dT;
                 if (T < 0) T = 0.0; // circumvent rare case floating point arithmetic issues
                 current_dT *= 0.2;
@@ -145,8 +156,9 @@ namespace LatticeCUT {
                     temperatures.emplace_back(T);
                     finite_gaps.emplace_back(model.Delta.as_vector());
                 }
-
-                model.Delta.fill_with(finite_gaps.back());
+                else {
+                    model.Delta.fill_with(finite_gaps.back());
+                }
                 did_last_converge = true;
             }
         } while(std::abs(delta_max) > ZERO_EPS || current_dT >= TARGET_DT);
@@ -164,7 +176,7 @@ namespace LatticeCUT {
                 }));
         }
 
-        std::cout << "Finished T_C computation at T_C = " << T << " (beta=" << model.beta << ") in " << temperatures.size() << "iterations." << std::endl;
+        std::cout << "Finished T_C computation at T_C = " << T << " (beta=" << 1./(T > 0.0 ? T : -1.) << ") in " << temperatures.size() << "iterations." << std::endl;
     }
 
     std::string T_C::to_folder() const
