@@ -1,6 +1,7 @@
-# ContinuumSystem
+# LatticeCUT
 
-Code used to compute the mean-field data and collective excitation spectra presented in 
+With this project, one may study the effect of the effective electron-electron interaction dervied via a continuous unitary transformation on lattice systems.
+The code was used to compute the mean-field data and collective excitation spectra presented in 
 
 TBD
 
