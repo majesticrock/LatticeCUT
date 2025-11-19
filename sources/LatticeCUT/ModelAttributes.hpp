@@ -139,14 +139,16 @@ enum ComplexAttributePolicy { Magnitude, SeperateRealAndImaginary };
 		}
 		template<class Vector>
 		inline void fill_with(const Vector& vector) {
-			this->selfconsistency_values.resize(vector.size());
+			if (this->size() < vector.size())
+				this->selfconsistency_values.resize(vector.size());
+			
 			std::copy(vector.begin(), vector.end(), this->selfconsistency_values.begin());
 		}
 		template<class Vector>
 		inline void fill_with(const Vector& vector, RealType weight) {
 			assert(this->size() == vector.size());
 #pragma omp parallel for
-			for (int i = 0; i < this->size(); ++i) {
+			for (int i = 0; i < vector.size(); ++i) { // use vector.size() in case vector.size() < this->size()
 				this->selfconsistency_values[i] = (1. - weight) * this->selfconsistency_values[i] + weight * vector[i];
 			}
 		}
@@ -225,7 +227,12 @@ enum ComplexAttributePolicy { Magnitude, SeperateRealAndImaginary };
 		inline const std::vector<DataType>& as_vector() const {
 			return this->selfconsistency_values;
 		};
-
+		// Returns a copy of the first N elements of the internal vector
+		inline std::vector<DataType> as_vector(size_t N) {
+			std::vector<DataType> ret(N);
+			std::copy_n(this->selfconsistency_values.begin(), N, ret.begin());
+			return ret;
+		}
 		/*
 		* Arithmetric operators
 		*/

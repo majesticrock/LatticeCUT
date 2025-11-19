@@ -28,6 +28,8 @@ namespace LatticeCUT {
         const l_float phonon_coupling; ///< g_in / \int_(E_F-omega_D)^(E_F+omega_D) rho(E) dE
         const l_float local_interaction_energy_units; ///< g_in / \int_(E_F-omega_D)^(E_F+omega_D) rho(E) dE
         l_float beta; ///< inverse temperature in units of W
+        l_float chemical_potential; ///< chemical potential in units of W
+        l_float filling_at_zero_temp; ///< filling at zero temperature
 
         ModelAttributes<l_float> Delta;
 
@@ -39,7 +41,7 @@ namespace LatticeCUT {
         l_float occupation_index(int k) const;
 
         inline l_float single_particle_energy(int k) const {
-            return energies.index_to_energy(k) - fermi_energy;
+            return energies.index_to_energy(k) - chemical_potential;
         }
 
         inline l_float quasiparticle_energy_index(int k) const
@@ -54,11 +56,15 @@ namespace LatticeCUT {
             return std::min(energies.energy_to_index(eps + omega_debye), N - 1);
         }
 
+        l_float compute_filling(const l_float mu) const;
+        
         l_float compute_coefficient(mrock::symbolic_operators::Coefficient const& coeff, int first, int second) const;
 
         const std::map<mrock::symbolic_operators::OperatorType, std::vector<l_float>>& get_expectation_values() const;
 
         l_float delta_max() const;
+
+        l_float true_gap() const;
 
         std::string info() const;
         std::string to_folder() const;

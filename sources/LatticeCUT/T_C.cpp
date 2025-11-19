@@ -49,10 +49,10 @@ namespace LatticeCUT {
         l_float last_delta{};
         l_float last_delta_F{};
         bool did_last_converge{true};
-        const int index_at_ef = static_cast<int>(0.5 * model.N * (model.fermi_energy + 1));
 
         model.beta = is_zero(T) ? -1. : 1. / T;
         solver.compute(false);
+        int index_at_ef = static_cast<int>(0.5 * model.N * (model.chemical_potential + 1));
         // the delta_max function uses the absolute value
         delta_max = model.delta_max();
         // use U(1) symmetry to unifiy delta_max > 0
@@ -69,7 +69,10 @@ namespace LatticeCUT {
         std::cout << "\t\tDelta_max=" << delta_max << "\tDelta_F=" << model.Delta[index_at_ef] << std::endl;
 
         temperatures.emplace_back(T);
-        finite_gaps.emplace_back(model.Delta.as_vector());
+        finite_gaps.emplace_back(model.Delta.as_vector(model.N));
+        gaps_at_ef.emplace_back(model.Delta[index_at_ef]);
+        chemical_potentials.emplace_back(model.Delta[model.N]);
+        true_gaps.emplace_back(model.true_gap());
 
         auto increase_dT = [&]() -> bool {
             if (current_dT >= 0.5 * INITIAL_DT) return false;
@@ -107,12 +110,15 @@ namespace LatticeCUT {
             std::cout << "Working... T=" << T << "    current dT=" << current_dT << std::endl;
             model.Delta.converged = false;
             solver.compute(false);
+            index_at_ef = static_cast<int>(0.5 * model.N * (model.chemical_potential + 1));
             delta_max = model.delta_max();
             std::cout << "\t\tDelta_max=" << delta_max << "\tDelta_F=" << model.Delta[index_at_ef] << std::endl;
 
             if (!model.Delta.converged) {
                 std::cerr << "Self-consistency not achieved while computing T_C! Retrying... at beta=" << model.beta << std::endl;
                 solver.compute(false);
+                index_at_ef = static_cast<int>(0.5 * model.N * (model.chemical_potential + 1));
+                delta_max = model.delta_max();
                 if (!model.Delta.converged) {
 		        	std::cerr << "No convergence even after retry. Skipping data point." << std::endl;
                     if (!did_last_converge) {
@@ -128,14 +134,19 @@ namespace LatticeCUT {
             if (decrease_dT()) {
                 if (std::abs(delta_max) > ZERO_EPS) { // the is_zero function is sometimes too precise
                     temperatures.emplace_back(T);
-                    finite_gaps.emplace_back(model.Delta.as_vector());
+                    finite_gaps.emplace_back(model.Delta.as_vector(model.N));
+                    gaps_at_ef.emplace_back(model.Delta[index_at_ef]);
+                    chemical_potentials.emplace_back(model.Delta[model.N]);
+                    true_gaps.emplace_back(model.true_gap());
                 }
 
                 if ((std::abs(last_delta_F) > ZERO_EPS) && (std::abs(finite_gaps.back()[index_at_ef]) < ZERO_EPS)) {
                     model.Delta.fill_with(*(finite_gaps.end() - 2));
+                    model.Delta[model.N] = *(chemical_potentials.end() - 2);
                 }
                 else {
                     model.Delta.fill_with(finite_gaps.back());
+                    model.Delta[model.N] = chemical_potentials.back();
                 }
                 
 
@@ -154,10 +165,14 @@ namespace LatticeCUT {
 
                 if (std::abs(delta_max) > ZERO_EPS) { // the is_zero function is sometimes too precise
                     temperatures.emplace_back(T);
-                    finite_gaps.emplace_back(model.Delta.as_vector());
+                    finite_gaps.emplace_back(model.Delta.as_vector(model.N));
+                    gaps_at_ef.emplace_back(model.Delta[index_at_ef]);
+                    chemical_potentials.emplace_back(model.Delta[model.N]);
+                    true_gaps.emplace_back(model.true_gap());
                 }
                 else {
                     model.Delta.fill_with(finite_gaps.back());
+                    model.Delta[model.N] = chemical_potentials.back();
                 }
                 did_last_converge = true;
             }
@@ -168,6 +183,9 @@ namespace LatticeCUT {
         std::sort(indices.begin(), indices.end(), [&](size_t A, size_t B) -> bool { return temperatures[A] < temperatures[B]; });
         permute(temperatures, indices);
         permute(finite_gaps, indices);
+        permute(true_gaps, indices);
+        permute(gaps_at_ef, indices);
+        permute(chemical_potentials, indices);
 
         max_gaps.resize(finite_gaps.size());
         for (size_t i = 0U; i < max_gaps.size(); ++i) {
