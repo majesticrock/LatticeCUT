@@ -237,7 +237,7 @@ namespace LatticeCUT {
         }
         std::cout << "Found minimum at epsilon=" << min 
             << "   E(min)=" << prev_min
-            << "   E(0)=" << model->quasiparticle_energy_index(model->energies.energy_to_index(model->fermi_energy)) << std::endl;
+            << "   E(0)=" << model->quasiparticle_energy_index(model->energies.energy_to_index(model->chemical_potential)) << std::endl;
         return { 2 * prev_min,
 			2 * std::max(model->quasiparticle_energy_index(loop_offset), model->quasiparticle_energy_index(loop_end - 1)) };
     }
@@ -262,6 +262,7 @@ namespace LatticeCUT {
 		auto solver = mrock::utility::Selfconsistency::make_broyden<l_float>(model.get(), &model->Delta, 200);
 #endif
 		solver.compute(true);
+		std::cout << "Found new chemical potential = " << model->chemical_potential << std::endl;
 		solver.free_memory();
 		std::cout << "\n########################################\n  ---  Delta_max = " << model->delta_max() << "  ---\n########################################\n" << std::endl;
 	}

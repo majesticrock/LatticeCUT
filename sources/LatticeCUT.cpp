@@ -31,7 +31,9 @@ int main(int argc, char** argv) {
 			{ "U",	                   	tc.model.local_interaction },
 	        { "E_F", 				   	tc.model.fermi_energy },
 			{ "omega_D", 			   	tc.model.omega_debye_in },
-	        { "N",              	   	tc.model.N } };
+	        { "N",              	   	tc.model.N },
+		    { "filling_at_zero_temp",	tc.model.filling_at_zero_temp },
+		};
 		
 		nlohmann::json info_json = mrock::utility::generate_json<LatticeCUT::info>("lattice_cut_");
 		info_json.update(mrock::utility::generate_json<mrock::info>("mrock_"));
@@ -42,8 +44,11 @@ int main(int argc, char** argv) {
 		mrock::utility::saveString(info_json.dump(4), output_folder + "metadata.json.gz");
 
 		nlohmann::json jT_C = {
-			{ "temperatures",		tc.temperatures },
-			{ "max_gaps", 			tc.max_gaps }
+			{ "temperatures",			tc.temperatures },
+			{ "max_gaps", 				tc.max_gaps },
+			{ "true_gaps", 				tc.true_gaps },
+			{ "gaps_at_ef", 			tc.gaps_at_ef },
+			{ "chemical_potentials",	tc.chemical_potentials }
 		};
 		// All gaps are seperated because the data is rarely needed and takes a lot of time loading
 		nlohmann::json jAllGaps = { { "finite_gaps",		tc.finite_gaps } };
@@ -70,7 +75,8 @@ int main(int argc, char** argv) {
 	        { "N",              	   	modes.getModel().N },
 	        { "Delta_max", 			   	modes.getModel().delta_max() },
 			{ "beta", 				   	modes.getModel().beta },
-			{ "investigated_operator", 	static_cast<int>(modes.investigated_operator) }
+			{ "investigated_operator", 	static_cast<int>(modes.investigated_operator) },
+			{ "filling_at_zero_temp",	modes.getModel().filling_at_zero_temp }
 		};
 
 	    nlohmann::json info_json = mrock::utility::generate_json<LatticeCUT::info>("lattice_cut_");
@@ -102,7 +108,7 @@ int main(int argc, char** argv) {
 			{ "inner_max",  modes.getModel().energies.inner_max },
 	#endif
 	        { "dos",        modes.getModel().selector.get_raw_dos() },
-			{ "Delta", 	    modes.getModel().Delta.as_vector() }
+			{ "Delta", 	    modes.getModel().Delta.as_vector(modes.getModel().N) }
 		};
 		jDelta.merge_patch(comments);
 		mrock::utility::saveString(jDelta.dump(4), output_folder + "gap.json.gz");
