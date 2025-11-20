@@ -22,7 +22,7 @@ namespace LatticeCUT {
         local_interaction_energy_units{local_interaction / selector.average_in_range(fermi_energy - omega_debye, fermi_energy + omega_debye)},
         beta{ input.getDouble("beta") },
         chemical_potential{ fermi_energy },
-        filling_at_zero_temp{ -1. },
+        filling_at_zero_temp{ 0. },
         Delta(decltype(Delta)::FromAllocator([&](int k) -> l_float {
             if (k == N) {
                 return fermi_energy;
@@ -41,7 +41,15 @@ namespace LatticeCUT {
             return magnitude;
 			}, N + 1))
     {
-        filling_at_zero_temp = compute_filling(chemical_potential);
+        int i = 0;
+        l_float eps{this->single_particle_energy(0)};
+        
+        while((eps = this->single_particle_energy(++i)) < l_float{}) {
+            filling_at_zero_temp += density_of_states[i];
+        }
+        if (eps == l_float{}) {
+            filling_at_zero_temp += 0.5 * density_of_states[i];
+        }
         std::cout << "Filling at zero temperature: " << filling_at_zero_temp << std::endl;
     }
 
@@ -56,20 +64,49 @@ namespace LatticeCUT {
         auto fit_occupation = [&](const l_float mu) -> l_float {
             return filling_at_zero_temp - compute_filling(mu);
         };
+        auto bracket_root = [&]() -> std::pair<l_float, l_float> {
+            constexpr l_float step = 0.005;
+            l_float a{chemical_potential - step};
+            l_float b{chemical_potential + step};
+
+            l_float fa{fit_occupation(a)};
+            l_float fb{fit_occupation(b)};
+
+            l_float dfa, dfb;
+
+            if (fa * fb < 0.0) {
+                return std::pair<l_float, l_float>{a, b};
+            }
+            else {
+                dfa = fit_occupation(a - step) - fa;
+                dfb = fit_occupation(b + step) - fb;
+            }
+
+            while (fa * fb > 0.0) {
+                if (fb * dfb < 0.0){
+                    b += step;
+                    fb = fit_occupation(b);
+                    dfb = fit_occupation(b + step) - fb;
+                }
+                if (fa * dfa < 0.0) {
+                    a -= step;
+                    fa = fit_occupation(a);
+                    dfa = fit_occupation(a - step) - fa;
+                }
+            }
+            //std::cout << "Found [" << a << "," << b << "]: " << fa << "\t" << fb << std::endl;
+            return std::pair<l_float, l_float>{a, b};
+        };
+
         std::uintmax_t boost_max_it{100U};
-        try {
-            const auto best_mu = boost::math::tools::toms748_solve(fit_occupation, 
-                this->chemical_potential - 0.2, this->chemical_potential + 0.2,
-                boost::math::tools::eps_tolerance<l_float>(16), boost_max_it);
-            result(N) = 0.5 * (best_mu.first + best_mu.second);
-        }
-        catch (const boost::wrapexcept<std::domain_error>& e) {
-            const auto best_mu = boost::math::tools::bracket_and_solve_root(fit_occupation, 
-                this->chemical_potential, l_float{2.}, false, // if mu rises, the filing increases as well.
-                // Moreover, we search for the root of n(T=0) - n(T), so if mu rises, the function decreases.
-                boost::math::tools::eps_tolerance<l_float>(16), boost_max_it);
-            result(N) = 0.5 * (best_mu.first + best_mu.second);
-        }
+        const auto bracket = bracket_root();
+        const auto best_mu = boost::math::tools::toms748_solve(fit_occupation, 
+                bracket.first, bracket.second,
+                boost::math::tools::eps_tolerance<l_float>(), boost_max_it);
+                
+        result(N) = 0.5 * (best_mu.first + best_mu.second);
+        std::cout << std::setprecision(16);
+        //std::cout << "Step: " << step_num << " found mu=" << result(N) << std::endl;
 
 #pragma omp parallel for
         for (int k = 0; k < N; k++)
