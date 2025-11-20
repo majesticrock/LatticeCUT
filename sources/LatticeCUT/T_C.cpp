@@ -112,7 +112,7 @@ namespace LatticeCUT {
             solver.compute(false);
             index_at_ef = static_cast<int>(0.5 * model.N * (model.chemical_potential + 1));
             delta_max = model.delta_max();
-            std::cout << "\t\tDelta_max=" << delta_max << "\tDelta_F=" << model.Delta[index_at_ef] << std::endl;
+            
 
             if (!model.Delta.converged) {
                 std::cerr << "Self-consistency not achieved while computing T_C! Retrying... at beta=" << model.beta << std::endl;
@@ -130,6 +130,9 @@ namespace LatticeCUT {
                     }
 		        }
             }
+            std::cout << "\t\tDelta_max=" << delta_max 
+                << "\tDelta_F=" << model.Delta[index_at_ef] 
+                << "\tmu=" << model.chemical_potential << std::endl;
 
             if (decrease_dT()) {
                 if (std::abs(delta_max) > ZERO_EPS) { // the is_zero function is sometimes too precise
@@ -143,13 +146,14 @@ namespace LatticeCUT {
                 if ((std::abs(last_delta_F) > ZERO_EPS) && (std::abs(finite_gaps.back()[index_at_ef]) < ZERO_EPS)) {
                     model.Delta.fill_with(*(finite_gaps.end() - 2));
                     model.Delta[model.N] = *(chemical_potentials.end() - 2);
+                    model.chemical_potential = model.Delta[model.N];
                 }
                 else {
                     model.Delta.fill_with(finite_gaps.back());
                     model.Delta[model.N] = chemical_potentials.back();
+                    model.chemical_potential = model.Delta[model.N];
                 }
                 
-
                 T -= current_dT;
                 if (T < 0) T = 0.0; // circumvent rare case floating point arithmetic issues
                 current_dT *= 0.2;
@@ -173,6 +177,7 @@ namespace LatticeCUT {
                 else {
                     model.Delta.fill_with(finite_gaps.back());
                     model.Delta[model.N] = chemical_potentials.back();
+                    model.chemical_potential = model.Delta[model.N];
                 }
                 did_last_converge = true;
             }
