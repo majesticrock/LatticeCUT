@@ -102,10 +102,12 @@ namespace LatticeCUT {
         const auto bracket = bracket_root();
         const auto best_mu = boost::math::tools::toms748_solve(fit_occupation, 
                 bracket.first, bracket.second,
-                boost::math::tools::eps_tolerance<l_float>(), boost_max_it);
-                
-        result(N) = 0.5 * (best_mu.first + best_mu.second);
-        std::cout << std::setprecision(16);
+                boost::math::tools::eps_tolerance<l_float>(16), boost_max_it);
+
+        const l_float fa{fit_occupation(best_mu.first)};
+        const l_float fb{fit_occupation(best_mu.second)};
+        result(N) = is_zero(fb - fa) ? 0.5 * (best_mu.first + best_mu.second) : (best_mu.first * fb - best_mu.second * fa) / (fb - fa);
+        //std::cout << std::setprecision(16);
         //std::cout << "Step: " << step_num << " found mu=" << result(N) << std::endl;
 
 #pragma omp parallel for
