@@ -9,6 +9,9 @@ constexpr double INITIAL_DT = 5e-3;
 constexpr double ZERO_EPS = 1e-10;
 constexpr double DELTA_F_EPS = 1e-4;
 
+constexpr size_t BROYDEN_ITER = 700;
+constexpr double BROYDEN_EPS = 1e-8;
+
 namespace LatticeCUT {
     template<class T>
     void permute(std::vector<T>& input, const std::vector<size_t>& indices)
@@ -51,7 +54,7 @@ namespace LatticeCUT {
         bool did_last_converge{true};
 
         model.beta = is_zero(T) ? -1. : 1. / T;
-        solver.compute(false);
+        solver.compute(false, BROYDEN_ITER, BROYDEN_EPS);
         int index_at_ef = static_cast<int>(0.5 * model.N * (model.chemical_potential + 1));
         // the delta_max function uses the absolute value
         delta_max = model.delta_max();
@@ -109,19 +112,19 @@ namespace LatticeCUT {
             }
             std::cout << "Working... T=" << T << "    current dT=" << current_dT << std::endl;
             model.Delta.converged = false;
-            solver.compute(false);
+            solver.compute(false, BROYDEN_ITER, BROYDEN_EPS);
             index_at_ef = static_cast<int>(0.5 * model.N * (model.chemical_potential + 1));
             delta_max = model.delta_max();
             
 
             if (!model.Delta.converged) {
                 std::cerr << "Self-consistency not achieved while computing T_C! Retrying... at beta=" << model.beta << std::endl;
-                solver.compute(false);
+                solver.compute(false, BROYDEN_ITER, BROYDEN_EPS);
                 index_at_ef = static_cast<int>(0.5 * model.N * (model.chemical_potential + 1));
                 delta_max = model.delta_max();
                 if (!model.Delta.converged) {
 		        	std::cerr << "No convergence even after retry. Skipping data point." << std::endl;
-                    if (!did_last_converge) {
+                    if (!did_last_converge && delta_max < 0.01) {
                         break;
                     }
                     else {

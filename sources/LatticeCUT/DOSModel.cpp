@@ -128,8 +128,16 @@ namespace LatticeCUT {
             result(k) += local_interaction_energy_units * __part;
         }
 
+        if (this->local_interaction == l_float{}) {
+            // The order parameter must have the same complex phase everywhere, but we may not touch the chemical potential, hence we skip the last element
+            for (auto result_it = result.begin(); result_it != result.end() - 1; ++result_it) {
+                if ((*result_it) < l_float{}) {
+                    (*result_it) *= -1.;
+                }
+            }
+        }
         this->Delta.fill_with(result, 0.5);
-        this->Delta[N] = 0.5 * (this->chemical_potential + initial_values(N));
+        
         this->chemical_potential = this->Delta[N];
         //std::cout << step_num << ": " << delta_max() << std::endl;
 		this->Delta.clear_noise(PRECISION);
