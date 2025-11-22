@@ -261,7 +261,15 @@ namespace LatticeCUT {
 #else
 		auto solver = mrock::utility::Selfconsistency::make_broyden<l_float>(model.get(), &model->Delta, 200);
 #endif
-		solver.compute(true);
+		solver.compute(true, 700U);
+		if(!model->Delta.converged) {
+			std::cerr << "Warning: Self-consistency not converged! Retrying..." << std::endl;
+			solver.compute(true, 700U);
+
+			if(!model->Delta.converged) {
+				throw std::runtime_error("Self-consistency not converged after second try!");
+			}
+		}
 		std::cout << "Found new chemical potential = " << model->chemical_potential << std::endl;
 		solver.free_memory();
 		std::cout << "\n########################################\n  ---  Delta_max = " << model->delta_max() << "  ---\n########################################\n" << std::endl;
