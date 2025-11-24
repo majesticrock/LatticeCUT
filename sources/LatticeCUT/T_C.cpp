@@ -6,11 +6,11 @@
 
 constexpr double TARGET_DT = 1e-5;
 constexpr double INITIAL_DT = 5e-3;
-constexpr double ZERO_EPS = 1e-10;
 constexpr double DELTA_F_EPS = 1e-4;
 
 constexpr size_t BROYDEN_ITER = 700;
 constexpr double BROYDEN_EPS = 1e-8;
+constexpr double ZERO_EPS = BROYDEN_EPS;
 
 namespace LatticeCUT {
     template<class T>

@@ -38,7 +38,7 @@ namespace LatticeCUT {
             else if (k < index_at_0 + range && k > index_at_0 - range) {
                 magnitude += local_interaction > 0.0 ? -0.1 : 0.1;
             }
-            return magnitude;
+            return phonon_coupling_in * magnitude;
 			}, N + 1))
     {
         int i = 0;
@@ -51,6 +51,7 @@ namespace LatticeCUT {
             filling_at_zero_temp += 0.5 * density_of_states[i];
         }
         std::cout << "Filling at zero temperature: " << filling_at_zero_temp << std::endl;
+        std::cout << "Compare initial sc-filling:  " << compute_filling(fermi_energy) << std::endl;
     }
 
     void DOSModel::iteration_step(const ParameterVector& initial_values, ParameterVector& result)
