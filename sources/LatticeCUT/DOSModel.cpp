@@ -41,15 +41,10 @@ namespace LatticeCUT {
             return phonon_coupling_in * magnitude;
 			}, N + 1))
     {
-        int i = 0;
-        l_float eps{this->single_particle_energy(0)};
-        
-        while((eps = this->single_particle_energy(++i)) < l_float{}) {
-            filling_at_zero_temp += density_of_states[i];
+        for(int i = 0; i < N; ++i) {
+            filling_at_zero_temp += fermi_function(single_particle_energy(i), -1.) * density_of_states[i];
         }
-        if (eps == l_float{}) {
-            filling_at_zero_temp += 0.5 * density_of_states[i];
-        }
+
         std::cout << "Filling at zero temperature: " << filling_at_zero_temp << std::endl;
         std::cout << "Compare initial sc-filling:  " << compute_filling(fermi_energy) << std::endl;
     }
@@ -95,21 +90,18 @@ namespace LatticeCUT {
                     dfa = fit_occupation(a - step) - fa;
                 }
             }
-            //std::cout << "Found [" << a << "," << b << "]: " << fa << "\t" << fb << std::endl;
             return std::pair<l_float, l_float>{a, b};
         };
 
         std::uintmax_t boost_max_it{100U};
         const auto bracket = bracket_root();
-        const auto best_mu = boost::math::tools::toms748_solve(fit_occupation, 
+        const auto best_mu = boost::math::tools::bisect(fit_occupation, 
                 bracket.first, bracket.second,
                 boost::math::tools::eps_tolerance<l_float>(16), boost_max_it);
 
         const l_float fa{fit_occupation(best_mu.first)};
         const l_float fb{fit_occupation(best_mu.second)};
         result(N) = is_zero(fb - fa) ? 0.5 * (best_mu.first + best_mu.second) : (best_mu.first * fb - best_mu.second * fa) / (fb - fa);
-        //std::cout << std::setprecision(16);
-        //std::cout << "Step: " << step_num << " found mu=" << result(N) << std::endl;
 
 #pragma omp parallel for
         for (int k = 0; k < N; k++)
@@ -140,7 +132,6 @@ namespace LatticeCUT {
         this->Delta.fill_with(result, 0.5);
         
         this->chemical_potential = this->Delta[N];
-        //std::cout << step_num << ": " << delta_max() << std::endl;
 		this->Delta.clear_noise(PRECISION);
 		result -= initial_values;
 		++step_num;
