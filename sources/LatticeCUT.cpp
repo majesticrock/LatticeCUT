@@ -76,7 +76,8 @@ int main(int argc, char** argv) {
 	        { "Delta_max", 			   	modes.getModel().delta_max() },
 			{ "beta", 				   	modes.getModel().beta },
 			{ "investigated_operator", 	static_cast<int>(modes.investigated_operator) },
-			{ "filling_at_zero_temp",	modes.getModel().filling_at_zero_temp }
+			{ "filling_at_zero_temp",	modes.getModel().filling_at_zero_temp },
+			{ "chemical_potential", 	modes.getModel().chemical_potential }
 		};
 
 	    nlohmann::json info_json = mrock::utility::generate_json<LatticeCUT::info>("lattice_cut_");
