@@ -1,6 +1,6 @@
 #!/bin/bash
 
-INPUT_CONFIG="param/cluster/sc.config"
+INPUT_CONFIG="params/cluster/sc.config"
 SLURM_TEMPLATE="slurm/sc_cascade.slurm"
 
 # Timestamped output directory
@@ -44,8 +44,6 @@ for dos in "${DOS_OPTIONS[@]}"; do
             -e "s/^N .*/N $Nval/" \
             "$INPUT_CONFIG" > "$CONFIG_FILE"
 
-        echo "Generated config: $CONFIG_FILE"
-
         # --- Generate slurm batch script ---
         sed \
             -e "s#./build_CascadeLake/latticecut .*#./build_CascadeLake/latticecut ${CONFIG_FILE}#" \
@@ -54,9 +52,6 @@ for dos in "${DOS_OPTIONS[@]}"; do
             -e "s#^#SBATCH --output=.*#SBATCH --output=${LOG_FILE}#" \
             -e "s/^#SBATCH --job-name=.*/#SBATCH --job-name=${dos}_N${Nval}/" \
             "$SLURM_TEMPLATE" > "$SLURM_FILE"
-
-        echo "Generated slurm: $SLURM_FILE"
-        echo " → Log will write to: $LOG_FILE"
 
         # Submit job
         sbatch "$SLURM_FILE"
