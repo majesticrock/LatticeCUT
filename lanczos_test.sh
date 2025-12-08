@@ -15,7 +15,7 @@ declare -A MEM_MAP
 MEM_MAP[2000]="8gb"
 MEM_MAP[4000]="8gb"
 MEM_MAP[8000]="24gb"
-MEM_MAP[12000]="32gb"
+MEM_MAP[12000]="98gb"
 MEM_MAP[20000]="98gb"
 
 # CPU setup
