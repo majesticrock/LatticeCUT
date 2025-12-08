@@ -6,14 +6,14 @@
 ## Mandatory:
 #SBATCH --job-name=bcc_cut
 #SBATCH --output=/home/althueser/phd/cpp/LatticeCUT/output_bcc.txt
-#SBATCH --time=72:00:00         ## maximum runtime; hours:minutes:seconds
-#SBATCH --partition=ice        ## choose queue
+#SBATCH --time=8:00:00         ## maximum runtime; hours:minutes:seconds
+#SBATCH --partition=med        ## choose queue
 
-##BATCH --ntasks=1              ## sets number of total mpi processes
-##BATCH --tasks-per-node=1      ## mpi processes spawned per node
-#BATCH --cpus-per-task=4       ## logical cores used per mpi process: should be 1, except if you want to combine OpenMP with$
+#SBATCH --ntasks=1              ## sets number of total mpi processes
+#SBATCH --tasks-per-node=1      ## mpi processes spawned per node
+#SBATCH --cpus-per-task=8       ## logical cores used per mpi process: should be 1, except if you want to combine OpenMP with$
 
-#SBATCH --mem=112gb              ## sets maximum allowed memory per node
+#SBATCH --mem=63gb              ## sets maximum allowed memory per node
 ##SBATCH --mem-per-cpu=100mb    ## sets maximum allowed memory per mpi process
 
 #SBATCH --mail-user=joshua.althueser@tu-dortmund.de     ## replace mail by personal mail address
@@ -21,7 +21,7 @@
 
 ## Optional:
 #SBATCH --hint=nomultithread    ## deactivate Hyperthreading (recommended); for Hyperthreading comment out this line
-#SBATCH --constraint=IceLake    ## chose a specific feature, e.g., only nodes with Haswell-architecture
+#SBATCH --constraint=CascadeLake    ## chose a specific feature, e.g., only nodes with Haswell-architecture
                                 ## Feature-Output by "cat /etc/slurm/slurm.conf | grep Feature"
 module purge
 cd /home/althueser/phd/cpp/LatticeCUT/        ## go to working directory
@@ -29,8 +29,9 @@ cd /home/althueser/phd/cpp/LatticeCUT/        ## go to working directory
 date
 echo "--- START ---"
 
+export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 ## execute binary using mpirun on the allocated computation resource; the number of cores is $
-./build_IceLake/latticecut params/cluster/bcc.config
+./build_CascadeLake/latticecut params/cluster/bcc.config
 
 echo "--- END ---"
 date

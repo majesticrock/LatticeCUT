@@ -11,7 +11,7 @@
 
 #SBATCH --ntasks=1              ## sets number of total mpi processes
 #SBATCH --tasks-per-node=1      ## mpi processes spawned per node
-#SBATCH --cpus-per-task=12       ## logical cores used per mpi process: should be 1, except if you want to combine OpenMP with$
+#SBATCH --cpus-per-task=40       ## logical cores used per mpi process: should be 1, except if you want to combine OpenMP with$
 
 #SBATCH --mem=63gb              ## sets maximum allowed memory per node
 ##SBATCH --mem-per-cpu=100mb    ## sets maximum allowed memory per mpi process
@@ -24,7 +24,6 @@
 #SBATCH --constraint=CascadeLake    ## chose a specific feature, e.g., only nodes with Haswell-architecture
                                 ## Feature-Output by "cat /etc/slurm/slurm.conf | grep Feature"
 module purge
-loadmkl
 cd /home/althueser/phd/cpp/LatticeCUT/        ## go to working directory
 
 date
