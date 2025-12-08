@@ -4,7 +4,7 @@ INPUT_CONFIG="params/cluster/sc.config"
 SLURM_TEMPLATE="slurm/sc_cascade.slurm"
 
 # Timestamped output directory
-DATE_TAG=$(date +"%Y%m%d_%H%M")
+DATE_TAG=$(date +"%Y%m%d_%H%M%S")
 OUTPUT_DIR="auto_generated_lanczos_${DATE_TAG}"
 
 DOS_OPTIONS=("sc" "bcc" "fcc")
@@ -46,12 +46,13 @@ for dos in "${DOS_OPTIONS[@]}"; do
 
         # --- Generate slurm batch script ---
         sed \
-            -e "s#./build_CascadeLake/latticecut .*#./build_CascadeLake/latticecut ${CONFIG_FILE}#" \
-            -e "s/^#SBATCH --mem=.*/#SBATCH --mem=${MEM}/" \
-            -e "s/^#SBATCH --cpus-per-task=.*/#SBATCH --cpus-per-task=${CPUS}/" \
-            -e "s#^#SBATCH[[:space:]]\+--output=.*#SBATCH --output=${LOG_FILE}#" \
-            -e "s/^#SBATCH --job-name=.*/#SBATCH --job-name=${dos}_N${Nval}/" \
-            "$SLURM_TEMPLATE" > "$SLURM_FILE"
+            -e "s|./build_CascadeLake/latticecut .*|./build_CascadeLake/latticecut ${CONFIG_FILE}|" \
+            -e "s|^#SBATCH --mem=.*|#SBATCH --mem=${MEM}|" \
+            -e "s|^#SBATCH --cpus-per-task=.*|#SBATCH --cpus-per-task=${CPUS}|" \
+            -e "s|^#SBATCH[[:space:]]\+--output=.*|#SBATCH --output=${LOG_FILE}|" \
+            -e "s|^#SBATCH --job-name=.*|#SBATCH --job-name=${dos}_N${Nval}|" \
+                "$SLURM_TEMPLATE" > "$SLURM_FILE"
+
 
         # Submit job
         sbatch "$SLURM_FILE"
