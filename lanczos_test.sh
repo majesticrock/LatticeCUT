@@ -49,13 +49,11 @@ for dos in "${DOS_OPTIONS[@]}"; do
             -e "s#./build_CascadeLake/latticecut .*#./build_CascadeLake/latticecut ${CONFIG_FILE}#" \
             -e "s/^#SBATCH --mem=.*/#SBATCH --mem=${MEM}/" \
             -e "s/^#SBATCH --cpus-per-task=.*/#SBATCH --cpus-per-task=${CPUS}/" \
-            -e "s#^#SBATCH --output=.*#SBATCH --output=${LOG_FILE}#" \
+            -e "s#^#SBATCH[[:space:]]\+--output=.*#SBATCH --output=${LOG_FILE}#" \
             -e "s/^#SBATCH --job-name=.*/#SBATCH --job-name=${dos}_N${Nval}/" \
             "$SLURM_TEMPLATE" > "$SLURM_FILE"
 
         # Submit job
         sbatch "$SLURM_FILE"
-        echo "Submitted: dos=$dos | N=$Nval | CPUs=$CPUS | Mem=$MEM"
-        echo
     done
 done

@@ -5,7 +5,7 @@
 
 ## Mandatory:
 #SBATCH --job-name=bcc_cut
-#SBATCH --output=/home/althueser/phd/cpp/LatticeCUT/output_bcc.txt
+#SBATCH --output=/home/althueser/phd/cpp/LatticeCUT/output_fcc.txt
 #SBATCH --time=8:00:00         ## maximum runtime; hours:minutes:seconds
 #SBATCH --partition=med        ## choose queue
 
