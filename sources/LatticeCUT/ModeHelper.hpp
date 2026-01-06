@@ -10,16 +10,18 @@
 #define _XP
 #endif
 
+#define IEOM_CLASS_TYPE mrock::utility::Numerics::iEoM::XPResolvent<ModeHelper, l_float, 10>
+
 #include <mrock/utility/Numerics/iEoM/XPResolvent.hpp>
 
 namespace LatticeCUT {
 	enum class InvestigatedOperator { Full = 0, NearZero = 1, NearDoublePeaks = 2 };
 
-	class ModeHelper : public mrock::utility::Numerics::iEoM::XPResolvent<ModeHelper, l_float>
+	class ModeHelper : public IEOM_CLASS_TYPE
 	{
 	private:
-		friend struct mrock::utility::Numerics::iEoM::XPResolvent<ModeHelper, l_float>;
-		using _parent = mrock::utility::Numerics::iEoM::XPResolvent<ModeHelper, l_float>;
+		friend struct IEOM_CLASS_TYPE;
+		using _parent = IEOM_CLASS_TYPE;
 
         int select_epsilon(mrock::symbolic_operators::Momentum const& momentum, int k, int l, int q=int{}) const;
         l_float get_expectation_value(mrock::symbolic_operators::WickOperator const& op, int k) const;
@@ -61,4 +63,4 @@ namespace LatticeCUT {
 	};
 }
 
-#undef __ieom_algorithm
+#undef IEOM_CLASS_TYPE

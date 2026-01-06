@@ -115,15 +115,35 @@ int main(int argc, char** argv) {
 		mrock::utility::saveString(jDelta.dump(4), output_folder + "gap.json.gz");
 		std::cout << "Order parameter data saved!" << std::endl;
 
-	    auto resolvents = modes.compute_collective_modes(400);
+#ifdef LATTICE_CUT_RESIDUALS
+	    auto [resolvents, residual_infos] = modes.compute_collective_modes_with_residuals(400);
+#else
+		auto resolvents = modes.compute_collective_modes(400);
+#endif
 		if (!resolvents.empty()) {
 			nlohmann::json jResolvents = {
 				{ "resolvents", resolvents },
 				{ "continuum_boundaries", modes.continuum_boundaries() }
 			};
 			jResolvents.merge_patch(comments);
-			mrock::utility::saveString(jResolvents.dump(4),output_folder + "resolvents.json.gz");
+			mrock::utility::saveString(jResolvents.dump(4), output_folder + "resolvents.json.gz");
+#ifdef LATTICE_CUT_RESIDUALS
+			nlohmann::json jResiduals = {
+				{ "phase", residual_infos.front() },
+				{ "amplitude", residual_infos.back() }
+			};
+			jResiduals.merge_patch(comments);
+			mrock::utility::saveString(jResiduals.dump(4), output_folder + "residuals.json.gz");
 		}
+#endif
+		/* auto [phase_data, amplitude_data] = modes.full_diagonalization();
+		nlohmann::json jFullDiag = {
+			{ "phase", phase_data },
+			{ "amplitude", amplitude_data },
+			{ "continuum_boundaries", modes.continuum_boundaries() }
+		};
+		jFullDiag.merge_patch(comments);
+		mrock::utility::saveString(jFullDiag.dump(4), output_folder + "full_diagonalization.json.gz"); */
 	}
 
     return 0;
