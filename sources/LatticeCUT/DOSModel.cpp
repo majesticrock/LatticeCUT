@@ -39,12 +39,17 @@ namespace LatticeCUT {
                 magnitude += local_interaction > 0.0 ? -0.1 : 0.1;
             }
             return phonon_coupling_in * magnitude;
-			}, N + 1))
+			}, N + 1)),
+        guaranteed_E_F{ (dos_name == "sc" || dos_name == "bcc") && fermi_energy == l_float{} }
     {
-        for(int i = 0; i < N; ++i) {
-            filling_at_zero_temp += fermi_function(single_particle_energy(i), -1.) * density_of_states[i];
+        if (guaranteed_E_F) {
+            filling_at_zero_temp = 0.5;
         }
-
+        else {
+            for(int i = 0; i < N; ++i) {
+                filling_at_zero_temp += fermi_function(single_particle_energy(i), -1.) * density_of_states[i];
+            }
+        }
         std::cout << "Filling at zero temperature: " << filling_at_zero_temp << std::endl;
         std::cout << "Compare initial sc-filling:  " << compute_filling(fermi_energy) << std::endl;
     }
@@ -54,54 +59,56 @@ namespace LatticeCUT {
         static int step_num = 0;
         result.setZero();
         this->Delta.fill_with(initial_values);
-        this->chemical_potential = initial_values(N);
+        if (!guaranteed_E_F) this->chemical_potential = initial_values(N);
         this->get_expectation_values();
 
-        auto fit_occupation = [&](const l_float mu) -> l_float {
-            return filling_at_zero_temp - compute_filling(mu);
-        };
-        auto bracket_root = [&]() -> std::pair<l_float, l_float> {
-            constexpr l_float step = 0.005;
-            l_float a{chemical_potential - step};
-            l_float b{chemical_potential + step};
+        if (!guaranteed_E_F) {
+            auto fit_occupation = [&](const l_float mu) -> l_float {
+                return filling_at_zero_temp - compute_filling(mu);
+            };
+            auto bracket_root = [&]() -> std::pair<l_float, l_float> {
+                constexpr l_float step = 0.005;
+                l_float a{chemical_potential - step};
+                l_float b{chemical_potential + step};
 
-            l_float fa{fit_occupation(a)};
-            l_float fb{fit_occupation(b)};
+                l_float fa{fit_occupation(a)};
+                l_float fb{fit_occupation(b)};
 
-            l_float dfa, dfb;
+                l_float dfa, dfb;
 
-            if (fa * fb < 0.0) {
-                return std::pair<l_float, l_float>{a, b};
-            }
-            else {
-                dfa = fit_occupation(a - step) - fa;
-                dfb = fit_occupation(b + step) - fb;
-            }
-
-            while (fa * fb > 0.0) {
-                if (fb * dfb < 0.0){
-                    b += step;
-                    fb = fit_occupation(b);
+                if (fa * fb < 0.0) {
+                    return std::pair<l_float, l_float>{a, b};
+                }
+                else {
+                    dfa = fit_occupation(a - step) - fa;
                     dfb = fit_occupation(b + step) - fb;
                 }
-                if (fa * dfa < 0.0) {
-                    a -= step;
-                    fa = fit_occupation(a);
-                    dfa = fit_occupation(a - step) - fa;
+
+                while (fa * fb > 0.0) {
+                    if (fb * dfb < 0.0){
+                        b += step;
+                        fb = fit_occupation(b);
+                        dfb = fit_occupation(b + step) - fb;
+                    }
+                    if (fa * dfa < 0.0) {
+                        a -= step;
+                        fa = fit_occupation(a);
+                        dfa = fit_occupation(a - step) - fa;
+                    }
                 }
-            }
-            return std::pair<l_float, l_float>{a, b};
-        };
+                return std::pair<l_float, l_float>{a, b};
+            };
 
-        std::uintmax_t boost_max_it{100U};
-        const auto bracket = bracket_root();
-        const auto best_mu = boost::math::tools::bisect(fit_occupation, 
-                bracket.first, bracket.second,
-                boost::math::tools::eps_tolerance<l_float>(16), boost_max_it);
+            std::uintmax_t boost_max_it{100U};
+            const auto bracket = bracket_root();
+            const auto best_mu = boost::math::tools::bisect(fit_occupation, 
+                    bracket.first, bracket.second,
+                    boost::math::tools::eps_tolerance<l_float>(16), boost_max_it);
 
-        const l_float fa{fit_occupation(best_mu.first)};
-        const l_float fb{fit_occupation(best_mu.second)};
-        result(N) = is_zero(fb - fa) ? 0.5 * (best_mu.first + best_mu.second) : (best_mu.first * fb - best_mu.second * fa) / (fb - fa);
+            const l_float fa{fit_occupation(best_mu.first)};
+            const l_float fb{fit_occupation(best_mu.second)};
+            result(N) = is_zero(fb - fa) ? 0.5 * (best_mu.first + best_mu.second) : (best_mu.first * fb - best_mu.second * fa) / (fb - fa);
+        }
 
 #pragma omp parallel for
         for (int k = 0; k < N; k++)

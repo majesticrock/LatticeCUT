@@ -71,5 +71,6 @@ namespace LatticeCUT {
 
     private:
 		mutable std::map<mrock::symbolic_operators::OperatorType, std::vector<l_float>> _expecs;
+        const bool guaranteed_E_F{};
     };
 }
