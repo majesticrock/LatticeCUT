@@ -83,6 +83,7 @@ namespace LatticeCUT {
 
 	void ModeHelper::createStartingStates()
     {
+		starting_states.clear();
 		starting_states.push_back({ _parent::Vector::Zero(antihermitian_discretization), _parent::Vector::Zero(hermitian_discretization), "SC" });
 		int __b, __e;
 		if (investigated_operator == InvestigatedOperator::Full) {

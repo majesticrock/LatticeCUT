@@ -131,6 +131,15 @@ int main(int argc, char** argv) {
 			jResiduals.merge_patch(comments);
 			mrock::utility::saveString(jResiduals.dump(4), output_folder + "residuals.json.gz");
 		}
+
+		/* auto [phase_data, amplitude_data] = modes.full_diagonalization();
+		nlohmann::json jFullDiag = {
+			{ "phase", phase_data },
+			{ "amplitude", amplitude_data },
+			{ "continuum_boundaries", modes.continuum_boundaries() }
+		};
+		jFullDiag.merge_patch(comments);
+		mrock::utility::saveString(jFullDiag.dump(4), output_folder + "full_diagonalization.json.gz"); */
 	}
 
     return 0;
