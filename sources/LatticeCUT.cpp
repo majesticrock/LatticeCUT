@@ -115,7 +115,7 @@ int main(int argc, char** argv) {
 		mrock::utility::saveString(jDelta.dump(4), output_folder + "gap.json.gz");
 		std::cout << "Order parameter data saved!" << std::endl;
 
-	    auto [resolvents, residual_infos] = modes.compute_collective_modes_with_residuals(300);
+	    auto [resolvents, residual_infos] = modes.compute_collective_modes_with_residuals(400);
 		if (!resolvents.empty()) {
 			nlohmann::json jResolvents = {
 				{ "resolvents", resolvents },
