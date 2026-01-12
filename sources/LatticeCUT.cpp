@@ -134,8 +134,8 @@ int main(int argc, char** argv) {
 			};
 			jResiduals.merge_patch(comments);
 			mrock::utility::saveString(jResiduals.dump(4), output_folder + "residuals.json.gz");
-		}
 #endif
+		}
 		/* auto [phase_data, amplitude_data] = modes.full_diagonalization();
 		nlohmann::json jFullDiag = {
 			{ "phase", phase_data },
