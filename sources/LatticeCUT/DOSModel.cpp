@@ -101,9 +101,9 @@ namespace LatticeCUT {
 
             std::uintmax_t boost_max_it{100U};
             const auto bracket = bracket_root();
-            const auto best_mu = boost::math::tools::bisect(fit_occupation, 
+            const auto best_mu = boost::math::tools::toms748_solve(fit_occupation, 
                     bracket.first, bracket.second,
-                    boost::math::tools::eps_tolerance<l_float>(16), boost_max_it);
+                    boost::math::tools::eps_tolerance<l_float>(32), boost_max_it);
 
             const l_float fa{fit_occupation(best_mu.first)};
             const l_float fb{fit_occupation(best_mu.second)};
