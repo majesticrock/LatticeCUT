@@ -40,6 +40,13 @@ target_sources(latticecut PRIVATE
 )
 SET_COMPILER_FLAGS(latticecut)
 
+option(LATTICE_CUT_RESIDUALS "Compute residuals and eigenvectors of the transformed dynamical matrix." OFF)
+if (LATTICE_CUT_RESIDUALS)
+    target_compile_definitions(latticecut PRIVATE LATTICE_CUT_RESIDUALS)
+endif()
+
+
+
 add_subdirectory(sources/DOS)
 
 target_link_libraries(latticecut PRIVATE OpenMP::OpenMP_CXX DOS ${mrock_LIBRARIES})
