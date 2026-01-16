@@ -10,7 +10,7 @@
 #define _XP
 #endif
 
-#define IEOM_CLASS_TYPE mrock::utility::Numerics::iEoM::XPResolvent<ModeHelper, l_float, 10>
+#define IEOM_CLASS_TYPE mrock::utility::Numerics::iEoM::XPResolvent<ModeHelper, l_float, 10, true>
 
 #include <mrock/utility/Numerics/iEoM/XPResolvent.hpp>
 
