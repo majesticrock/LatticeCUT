@@ -4,7 +4,7 @@
 ## or look up the slurm documentation under https://slurm.schedmed.com/sbatch.html
 
 ## Mandatory:
-#SBATCH --job-name=sc_cut
+#SBATCH --job-name=sp_cut
 #SBATCH --output=/home/althueser/phd/cpp/LatticeCUT/output_sc.txt
 #SBATCH --time=8:00:00         ## maximum runtime; hours:minutes:seconds
 #SBATCH --partition=med        ## choose queue

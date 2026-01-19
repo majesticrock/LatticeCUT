@@ -4,6 +4,7 @@ ICELAKE_BUILD_DIR = build_IceLake
 DEBUG_BUILD_DIR = build_debug
 
 RESIDUALS ?= OFF
+FULL_DIAG ?= OFF
 
 # Default target to build the project
 all: $(BUILD_DIR)/Makefile
@@ -14,6 +15,7 @@ $(BUILD_DIR)/Makefile: CMakeLists.txt
 	@cd $(BUILD_DIR) && cmake \
 		-DCMAKE_CXX_COMPILER=g++ \
 		-DLATTICE_CUT_RESIDUALS=$(RESIDUALS) \
+		-DLATTICE_CUT_FULL_DIAG=$(FULL_DIAG) \
 		..
 
 cascadelake: $(CASCADELAKE_BUILD_DIR)/Makefile
@@ -25,6 +27,7 @@ $(CASCADELAKE_BUILD_DIR)/Makefile: CMakeLists.txt
 	    -DCMAKE_CXX_COMPILER=g++ \
 	    -DCLUSTER_BUILD=cascadelake \
 	    -DLATTICE_CUT_RESIDUALS=$(RESIDUALS) \
+	    -DLATTICE_CUT_FULL_DIAG=$(FULL_DIAG) \
 	    ..
 
 icelake: $(ICELAKE_BUILD_DIR)/Makefile
@@ -36,6 +39,7 @@ $(ICELAKE_BUILD_DIR)/Makefile: CMakeLists.txt
 	    -DCMAKE_CXX_COMPILER=g++ \
 	    -DCLUSTER_BUILD=icelake \
 	    -DLATTICE_CUT_RESIDUALS=$(RESIDUALS) \
+	    -DLATTICE_CUT_FULL_DIAG=$(FULL_DIAG) \
 	    ..
 
 debug: $(DEBUG_BUILD_DIR)/Makefile
@@ -47,6 +51,7 @@ $(DEBUG_BUILD_DIR)/Makefile: CMakeLists.txt
 		-DCMAKE_CXX_COMPILER=g++ \
 		-DCMAKE_BUILD_TYPE=Debug \
 		-DLATTICE_CUT_RESIDUALS=$(RESIDUALS) \
+		-DLATTICE_CUT_FULL_DIAG=$(FULL_DIAG) \
 		..
 
 clean:

@@ -4,8 +4,8 @@
 ## or look up the slurm documentation under https://slurm.schedmed.com/sbatch.html
 
 ## Mandatory:
-#SBATCH --job-name=sc_cut
-#SBATCH --output=/home/althueser/phd/cpp/LatticeCUT/output_sc.txt
+#SBATCH --job-name=fcc_ed
+#SBATCH --output=/home/althueser/phd/cpp/LatticeCUT/output_fcc.txt
 #SBATCH --time=8:00:00         ## maximum runtime; hours:minutes:seconds
 #SBATCH --partition=med        ## choose queue
 
@@ -13,7 +13,7 @@
 #SBATCH --tasks-per-node=1      ## mpi processes spawned per node
 #SBATCH --cpus-per-task=40       ## logical cores used per mpi process: should be 1, except if you want to combine OpenMP with$
 
-#SBATCH --mem=40gb              ## sets maximum allowed memory per node
+#SBATCH --mem=80gb              ## sets maximum allowed memory per node
 ##SBATCH --mem-per-cpu=100mb    ## sets maximum allowed memory per mpi process
 
 #SBATCH --mail-user=joshua.althueser@tu-dortmund.de     ## replace mail by personal mail address
@@ -31,7 +31,7 @@ echo "--- START ---"
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 ## execute binary using mpirun on the allocated computation resource; the number of cores is $
-./build_CascadeLake/latticecut params/cluster/sc.config
+./build_CascadeLake/latticecut params/cluster/fcc.config
 
 echo "--- END ---"
 date
