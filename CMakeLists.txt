@@ -44,7 +44,10 @@ option(LATTICE_CUT_RESIDUALS "Compute residuals and eigenvectors of the transfor
 if (LATTICE_CUT_RESIDUALS)
     target_compile_definitions(latticecut PRIVATE LATTICE_CUT_RESIDUALS)
 endif()
-
+option(LATTICE_CUT_FULL_DIAG "Fully diagonalize the transformed dynamical matrix." OFF)
+if (LATTICE_CUT_FULL_DIAG)
+    target_compile_definitions(latticecut PRIVATE LATTICE_CUT_FULL_DIAG)
+endif()
 
 
 add_subdirectory(sources/DOS)
