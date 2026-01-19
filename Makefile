@@ -56,6 +56,7 @@ $(DEBUG_BUILD_DIR)/Makefile: CMakeLists.txt
 
 clean:
 	@rm -rf $(BUILD_DIR) $(CASCADELAKE_BUILD_DIR) $(ICELAKE_BUILD_DIR) $(DEBUG_BUILD_DIR) build_header
+	@rm -rf $(BUILD_DIR) $(CASCADELAKE_BUILD_DIR)_ed $(ICELAKE_BUILD_DIR)_ed $(DEBUG_BUILD_DIR)_ed
 	@rm -rf auto_generated*
 
 .PHONY: all clean icelake cascadelake debug
