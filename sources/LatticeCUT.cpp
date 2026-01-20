@@ -138,10 +138,10 @@ int main(int argc, char** argv) {
 #endif
 		}
 #else
-		auto [phase_data, amplitude_data] = modes.full_diagonalization();
+		auto full_diag_data = modes.full_diagonalization();
 		nlohmann::json jFullDiag = {
-			{ "phase", phase_data },
-			{ "amplitude", amplitude_data },
+			{ "phase", full_diag_data.first },
+			{ "amplitude", full_diag_data.second },
 			{ "continuum_boundaries", modes.continuum_boundaries() }
 		};
 		jFullDiag.merge_patch(comments);
