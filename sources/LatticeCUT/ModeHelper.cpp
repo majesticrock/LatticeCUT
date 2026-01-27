@@ -54,6 +54,11 @@ namespace LatticeCUT {
 		l_float value{};
 
 		const l_float energy_k = model->energies.index_to_energy(k);
+#ifdef BCS_INTERACTION
+		if (energy_k > model->fermi_energy + model->omega_debye || energy_k < model->fermi_energy - model->omega_debye) {
+			return l_float{};
+		}
+#endif
         for (int q = model->phonon_lower_bound(energy_k); q <= model->phonon_upper_bound(energy_k); ++q) {
             value += this->get_expectation_value(*summed_op, q) * model->density_of_states[q];
         }

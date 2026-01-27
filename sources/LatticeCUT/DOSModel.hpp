@@ -10,6 +10,8 @@
 #include <mrock/utility/InputFileReader.hpp>
 #include <mrock/symbolic_operators/WickTerm.hpp>
 
+//#define BCS_INTERACTION
+
 namespace LatticeCUT {
     struct DOSModel {
         typedef Eigen::VectorXd ParameterVector;
@@ -50,10 +52,18 @@ namespace LatticeCUT {
         }
 
         inline int phonon_lower_bound(l_float eps) const {
+#ifdef BCS_INTERACTION
+            return energies.energy_to_index(fermi_energy - omega_debye);
+#else
             return std::max(energies.energy_to_index(eps - omega_debye), int{});
+#endif
         }
         inline int phonon_upper_bound(l_float eps) const {
+#ifdef BCS_INTERACTION
+            return energies.energy_to_index(fermi_energy + omega_debye);
+#else
             return std::min(energies.energy_to_index(eps + omega_debye), N - 1);
+#endif
         }
 
         l_float compute_filling(const l_float mu) const;
