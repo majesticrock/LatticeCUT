@@ -38,7 +38,7 @@ namespace LatticeCUT {
             else if (k < index_at_0 + range && k > index_at_0 - range) {
                 magnitude += local_interaction > 0.0 ? -0.1 : 0.1;
             }
-            return phonon_coupling_in * magnitude;
+            return (phonon_coupling - local_interaction) * magnitude;
 			}, N + 1)),
         guaranteed_E_F{ (dos_name == "sc" || dos_name == "bcc") && fermi_energy == l_float{} }
     {
@@ -115,10 +115,16 @@ namespace LatticeCUT {
         {
             const l_float energy_k = energies.index_to_energy(k);
             l_float __part{};
+#ifdef BCS_INTERACTION
+            if (energy_k < fermi_energy + omega_debye && energy_k > fermi_energy - omega_debye) {
+#endif
             for (int l = phonon_lower_bound(energy_k); l <= phonon_upper_bound(energy_k); ++l)
             {
                 __part -= _expecs[mrock::symbolic_operators::SC_Type][l] * density_of_states[l];
             }
+#ifdef BCS_INTERACTION
+            }
+#endif
             result(k) = phonon_coupling * __part;
             __part = l_float{};
             for (int l = 0; l < N; ++l)
@@ -194,9 +200,17 @@ namespace LatticeCUT {
 		}
 		else if (coeff.name == "g")
 		{
+#ifdef BCS_INTERACTION
+            if(energies.index_to_energy(first) < fermi_energy - omega_debye 
+                || energies.index_to_energy(first) > fermi_energy + omega_debye) return l_float{};
+            
+            if(energies.index_to_energy(second) < fermi_energy - omega_debye 
+                || energies.index_to_energy(second) > fermi_energy + omega_debye) return l_float{};
+#else
             if (std::abs(energies.index_to_energy(first) - energies.index_to_energy(second)) > omega_debye) {
                 return l_float{};
             }
+#endif
             return phonon_coupling;
         }
         else if (coeff.name == "U")
