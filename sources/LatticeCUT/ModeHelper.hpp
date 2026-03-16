@@ -15,7 +15,7 @@
 #include <mrock/utility/Numerics/iEoM/XPResolvent.hpp>
 
 namespace LatticeCUT {
-	enum class InvestigatedOperator { Full = 0, NearZero = 1, NearDoublePeaks = 2 };
+	enum class InvestigatedOperator { Full = 0, NearZero = 1, NearDoublePeaks = 2, Preset = 255 };
 
 	class ModeHelper : public IEOM_CLASS_TYPE
 	{

@@ -2,6 +2,8 @@
 #include <mrock/utility/Selfconsistency/IterativeSolver.hpp>
 #include <mrock/utility/Selfconsistency/BroydenSolver.hpp>
 
+#include "preset_operator.hpp"
+
 #define ieom_diag model->density_of_states[k]
 #define ieom_offdiag model->density_of_states[k] * model->density_of_states[l]
 
@@ -90,6 +92,15 @@ namespace LatticeCUT {
     {
 		starting_states.clear();
 		starting_states.push_back({ _parent::Vector::Zero(antihermitian_discretization), _parent::Vector::Zero(hermitian_discretization), "SC" });
+		if (investigated_operator == InvestigatedOperator::Preset) {
+			for (int k = 0; k < __preset_phase.size() && k < antihermitian_discretization; ++k) {
+				starting_states[0][0](k) = __preset_phase[k];
+			}
+			for (int k = 0; k < __preset_amplitude.size() && k < hermitian_discretization; ++k) {
+				starting_states[0][1](k) = __preset_amplitude[k];
+			}
+			return;
+		}
 		int __b, __e;
 		if (investigated_operator == InvestigatedOperator::Full) {
 			__b = 0;
