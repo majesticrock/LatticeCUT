@@ -2,7 +2,7 @@
 
 # Set architecture: "IceLake" or "CascadeLake"
 arch="CascadeLake"
-LATTICE_TYPE="bcc"
+LATTICE_TYPE="sc"
 
 input_file="params/for_auto.txt"
 readarray -t NEW_VALUES < "${input_file}"
