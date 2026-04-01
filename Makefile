@@ -1,10 +1,12 @@
-BUILD_DIR = build
-CASCADELAKE_BUILD_DIR = build_CascadeLake
-ICELAKE_BUILD_DIR = build_IceLake
-DEBUG_BUILD_DIR = build_debug
-
 RESIDUALS ?= OFF
 FULL_DIAG ?= OFF
+
+BUILD_SUFFIX := $(if $(filter ON,$(FULL_DIAG)),_ed,)
+
+BUILD_DIR               := build$(BUILD_SUFFIX)
+CASCADELAKE_BUILD_DIR   := build_CascadeLake$(BUILD_SUFFIX)
+ICELAKE_BUILD_DIR       := build_IceLake$(BUILD_SUFFIX)
+DEBUG_BUILD_DIR         := build_debug$(BUILD_SUFFIX)
 
 # Default target to build the project
 all: $(BUILD_DIR)/Makefile
