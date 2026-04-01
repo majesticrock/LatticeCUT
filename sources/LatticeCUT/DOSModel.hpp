@@ -81,6 +81,10 @@ namespace LatticeCUT {
 
     private:
 		mutable std::map<mrock::symbolic_operators::OperatorType, std::vector<l_float>> _expecs;
+        // In system exhibiting particle-hole symmetry, the Fermi level at T=0 does not change
+        // if the interaction strength g is changed.
+        // Thus, if we only care about T=0 and have this symmetry, we can reduce the numerical cost
+        // associated with the self-consistency loop
         const bool guaranteed_E_F{};
     };
 }

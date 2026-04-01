@@ -110,8 +110,11 @@ namespace LatticeCUT {
             result(N) = is_zero(fb - fa) ? 0.5 * (best_mu.first + best_mu.second) : (best_mu.first * fb - best_mu.second * fa) / (fb - fa);
         }
 
+        // Abuse particle-hole symmetry if present
+        const int loop_bound = guaranteed_E_F ? N / 2 : N;
+
 #pragma omp parallel for
-        for (int k = 0; k < N; k++)
+        for (int k = 0; k < loop_bound; k++)
         {
             const l_float energy_k = energies.index_to_energy(k);
             l_float __part{};
@@ -126,12 +129,21 @@ namespace LatticeCUT {
             }
 #endif
             result(k) = phonon_coupling * __part;
-            __part = l_float{};
-            for (int l = 0; l < N; ++l)
-            {
-                __part += _expecs[mrock::symbolic_operators::SC_Type][l] * density_of_states[l];
-            }
+            if (local_interaction != 0.0) {
+                __part = l_float{};
+                for (int l = 0; l < N; ++l)
+                {
+                    __part += _expecs[mrock::symbolic_operators::SC_Type][l] * density_of_states[l];
+                }
             result(k) += local_interaction_energy_units * __part;
+        }
+        }
+        if (guaranteed_E_F) {
+            // Abuse particle-hole symmetry if present
+            for (int k = 0; k < loop_bound; k++)
+            {
+                result(N - k) = result(k);
+            }
         }
 
         if (this->local_interaction == l_float{}) {
