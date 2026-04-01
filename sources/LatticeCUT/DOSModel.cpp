@@ -27,8 +27,8 @@ namespace LatticeCUT {
             if (k == N) {
                 return fermi_energy;
             }
-            const double index_at_ef = 0.5 * N * (fermi_energy + 1); // only used for comparison, so double is fine
-            const double index_at_0 = N / 2;
+            const int index_at_ef = N * (fermi_energy + 1) / 2; // only used for comparison, so double is fine
+            const int index_at_0 = N / 2;
             const double range = omega_debye_in * N;
             
             double magnitude = local_interaction > 0.0 ? -0.001 : 0.001;
@@ -123,7 +123,7 @@ namespace LatticeCUT {
 #endif
             for (int l = phonon_lower_bound(energy_k); l <= phonon_upper_bound(energy_k); ++l)
             {
-                __part -= _expecs[mrock::symbolic_operators::SC_Type][l] * density_of_states[l];
+                __part -= _expecs[mrock::symbolic_operators::SC_Type][l >= loop_bound ? N - 1 - l : l] * density_of_states[l];
             }
 #ifdef BCS_INTERACTION
             }
@@ -133,7 +133,7 @@ namespace LatticeCUT {
                 __part = l_float{};
                 for (int l = 0; l < N; ++l)
                 {
-                    __part += _expecs[mrock::symbolic_operators::SC_Type][l] * density_of_states[l];
+                    __part += _expecs[mrock::symbolic_operators::SC_Type][l >= loop_bound ? N - 1 - l : l] * density_of_states[l];
                 }
             result(k) += local_interaction_energy_units * __part;
         }
