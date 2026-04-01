@@ -142,7 +142,7 @@ namespace LatticeCUT {
             // Abuse particle-hole symmetry if present
             for (int k = 0; k < loop_bound; k++)
             {
-                result(N - k) = result(k);
+                result(N - 1 - k) = result(k);
             }
         }
 
