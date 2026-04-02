@@ -25,12 +25,17 @@ DOS::EnergyRanges::EnergyRanges(double _E_min, double _E_max, double _inner_min,
 	std::cout << std::setprecision(17) << std::endl;
 	std::cout << "Check E_min:   " << this->E_min << "   " << this->index_to_energy(0) << std::endl;
 	std::cout << "Check E_max:   " << this->E_max << "   " << this->index_to_energy(N - 1) << std::endl;
+
+	for(int i = 0; i < N; ++i) {
+		if (i != energy_to_index(index_to_energy(i)))
+			std::cout << i << ":\t" << index_to_energy(i) << "\t" << energy_to_index(index_to_energy(i)) << std::endl;
+	}
 }
 
 int DOS::EnergyRanges::energy_to_index(double epsilon) const
 {
 #ifdef UNIFORM_DISCRETIZATION
-	return static_cast<int>((epsilon - E_min) / dE);
+	return static_cast<int>(std::round((epsilon - E_min) / dE));
 #else
     if (epsilon < inner_min) {
 		return static_cast<int>(std::lround((epsilon - E_min) / lower_dE));
