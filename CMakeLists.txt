@@ -37,6 +37,7 @@ target_sources(latticecut PRIVATE
     sources/LatticeCUT/DOSModel.cpp
     sources/LatticeCUT/ModeHelper.cpp
     sources/LatticeCUT/T_C.cpp
+    sources/LatticeCUT/ComplexModel.cpp
 )
 SET_COMPILER_FLAGS(latticecut)
 

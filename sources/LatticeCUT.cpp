@@ -6,6 +6,8 @@
 
 #include "LatticeCUT/T_C.hpp"
 #include "LatticeCUT/ModeHelper.hpp"
+#include "LatticeCUT/ComplexModel.hpp"
+#include <mrock/utility/Selfconsistency/IterativeSolver.hpp>
 #include "../build_header/info.h"
 
 using namespace LatticeCUT;
@@ -147,6 +149,56 @@ int main(int argc, char** argv) {
 		jFullDiag.merge_patch(comments);
 		mrock::utility::saveString(jFullDiag.dump(4), output_folder + "full_diagonalization.json.gz");
 #endif
+	}
+
+	// Test for the complex phase of the order parameter
+	if (input.getBool("complex")) {
+		ComplexModel model(input);
+		auto solver = mrock::utility::Selfconsistency::make_iterative<std::complex<l_float>>(&model, &model.Delta);
+
+		solver.compute(true);
+		if(!model.Delta.converged) {
+			std::cerr << "Warning: Self-consistency not converged! Retrying..." << std::endl;
+			solver.compute(true);
+
+			if(!model.Delta.converged) {
+				throw std::runtime_error("Self-consistency not converged after second try!");
+			}
+		}
+		solver.free_memory();
+		std::cout << "\n########################################\n  ---  Delta_max = " << model.delta_max() << "  ---\n########################################\n" << std::endl;
+
+		nlohmann::json comments = {
+			{ "time", 				   	mrock::utility::time_stamp() },
+	        { "dos_name",              	model.dos_name },
+			{ "g", 					   	model.phonon_coupling_in },
+			{ "U",	                   	model.local_interaction },
+	        { "E_F", 				   	model.fermi_energy },
+			{ "omega_D", 			   	model.omega_debye_in },
+	        { "N",              	   	model.N },
+	        { "Delta_max", 			   	model.delta_max() },
+			{ "beta", 				   	model.beta },
+			{ "filling_at_zero_temp",	model.filling_at_zero_temp },
+			{ "chemical_potential", 	model.chemical_potential }
+		};
+
+		nlohmann::json jDelta = {
+			{ "energies",		model.energies.get_abscissa() },
+	        { "dos",        	model.selector.get_raw_dos() },
+			{ "Delta_real",     model.Delta.real().as_vector(model.N) },
+			{ "Delta_imag",     model.Delta.imag().as_vector(model.N) }
+		};
+		jDelta.merge_patch(comments);
+
+		nlohmann::json info_json = mrock::utility::generate_json<LatticeCUT::info>("lattice_cut_");
+		info_json.update(mrock::utility::generate_json<mrock::info>("mrock_"));
+		const std::string output_folder = BASE_FOLDER + input.getString("output_folder") + "/" + model.to_folder();
+		std::filesystem::create_directories(output_folder);
+		std::cout << "Saving data to " << output_folder << std::endl;
+		mrock::utility::saveString(info_json.dump(4), output_folder + "metadata.json.gz");
+
+		mrock::utility::saveString(jDelta.dump(4), output_folder + "gap_complex.json.gz");
+		std::cout << "Order parameter data saved!" << std::endl;
 	}
 
     return 0;
