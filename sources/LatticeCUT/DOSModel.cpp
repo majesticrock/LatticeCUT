@@ -27,6 +27,7 @@ namespace LatticeCUT {
             if (k == N) {
                 return fermi_energy;
             }
+            if (phonon_coupling == l_float{}) return l_float{};
             const int index_at_ef = N * (fermi_energy + 1) / 2; // only used for comparison, so double is fine
             const int index_at_0 = N / 2;
             const double range = omega_debye_in * N;
