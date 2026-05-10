@@ -63,7 +63,10 @@ namespace LatticeCUT {
         if (!guaranteed_E_F) this->chemical_potential = initial_values(N);
         this->get_expectation_values();
 
-        if (!guaranteed_E_F) {
+        // If the gap is smaller than the discretization, we cannot resolve the chemical potential
+        // simply because we would effectively sum over a Heaviside function on those discretization points
+        // This gets alleviated by finite gaps because the occupation numbers become smooth functions
+        if (!guaranteed_E_F && this->delta_max() > 1. / N) {
             auto fit_occupation = [&](const l_float mu) -> l_float {
                 return filling_at_zero_temp - compute_filling(mu);
             };
@@ -104,13 +107,18 @@ namespace LatticeCUT {
             const auto bracket = bracket_root();
             const auto best_mu = boost::math::tools::toms748_solve(fit_occupation, 
                     bracket.first, bracket.second,
-                    boost::math::tools::eps_tolerance<l_float>(32), boost_max_it);
+                    boost::math::tools::eps_tolerance<l_float>(34), boost_max_it);
 
             const l_float fa{fit_occupation(best_mu.first)};
             const l_float fb{fit_occupation(best_mu.second)};
             result(N) = is_zero(fb - fa) ? 0.5 * (best_mu.first + best_mu.second) : (best_mu.first * fb - best_mu.second * fa) / (fb - fa);
         }
-
+        else {
+            result(N) = this->fermi_energy;
+        }
+        this->chemical_potential += result(N);
+        this->chemical_potential *= 0.5;
+        std::cout << result(N) << "    " << this->delta_max() << std::endl;
         // Abuse particle-hole symmetry if present
         const int loop_bound = guaranteed_E_F ? N / 2 : N;
 
@@ -156,8 +164,6 @@ namespace LatticeCUT {
             }
         }
         this->Delta.fill_with(result, 0.5);
-        
-        this->chemical_potential = this->Delta[N];
 		this->Delta.clear_noise(PRECISION);
 		result -= initial_values;
 		++step_num;
@@ -189,9 +195,9 @@ namespace LatticeCUT {
     {
         auto number_operator = [&](int i) -> l_float {
             const l_float eps = energies.index_to_energy(i) - mu;
-            const l_float E = sqrt(eps*eps + Delta[i]*Delta[i]);
             if (is_zero(Delta[i]))
 			    return fermi_function(eps, beta);
+            const l_float E = sqrt(eps*eps + Delta[i]*Delta[i]);
             if (beta < 0)
                 return 0.5 * (1 - (eps / E));
             else
