@@ -118,7 +118,6 @@ namespace LatticeCUT {
         }
         this->chemical_potential += result(N);
         this->chemical_potential *= 0.5;
-        std::cout << result(N) << "    " << this->delta_max() << std::endl;
         // Abuse particle-hole symmetry if present
         const int loop_bound = guaranteed_E_F ? N / 2 : N;
 
