@@ -34,12 +34,16 @@ namespace LatticeCUT {
             
             double magnitude = local_interaction > 0.0 ? -0.001 : 0.001;
             if (k < index_at_ef + range && k > index_at_ef - range) {
-                magnitude += 0.1;
+                magnitude += phonon_coupling;
             }
             else if (k < index_at_0 + range && k > index_at_0 - range) {
-                magnitude += local_interaction > 0.0 ? -0.1 : 0.1;
+                magnitude += local_interaction > 0.0 ? -phonon_coupling : phonon_coupling;
             }
-            return (phonon_coupling - local_interaction) * magnitude;
+            if (phonon_coupling > 2. && local_interaction > 0.) {
+                magnitude *= -1.0;
+            }
+            magnitude -= local_interaction;
+            return 0.1 * magnitude;
 			}, N + 1)),
         guaranteed_E_F{ (dos_name == "sc" || dos_name == "bcc") && fermi_energy == l_float{} }
     {
