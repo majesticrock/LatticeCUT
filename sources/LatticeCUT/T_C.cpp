@@ -77,6 +77,11 @@ namespace LatticeCUT {
         chemical_potentials.emplace_back(model.Delta[model.N]);
         true_gaps.emplace_back(model.true_gap());
 
+        if (delta_max < ZERO_EPS) {
+            // There is no superconductivity, hence we do not need to do anything
+            return;
+        }
+
         auto increase_dT = [&]() -> bool {
             if (current_dT >= 0.5 * INITIAL_DT) return false;
             if (is_zero(last_delta)) return false;
