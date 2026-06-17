@@ -32,7 +32,7 @@ namespace LatticeCUT {
             const int index_at_0 = N / 2;
             const double range = omega_debye_in * N;
             
-            double magnitude = local_interaction > 0.0 ? -0.001 : 0.001;
+            double magnitude{};
             if (k < index_at_ef + range && k > index_at_ef - range) {
                 magnitude += phonon_coupling;
             }
@@ -42,7 +42,6 @@ namespace LatticeCUT {
             if (phonon_coupling > 2. && local_interaction > 0.) {
                 magnitude *= -1.0;
             }
-            magnitude -= local_interaction;
             return 0.1 * magnitude;
 			}, N + 1)),
         guaranteed_E_F{ (dos_name == "sc" || dos_name == "bcc") && fermi_energy == l_float{} }
@@ -141,14 +140,6 @@ namespace LatticeCUT {
             }
 #endif
             result(k) = phonon_coupling * __part;
-            if (local_interaction != 0.0) {
-                __part = l_float{};
-                for (int l = 0; l < N; ++l)
-                {
-                    __part += _expecs[mrock::symbolic_operators::SC_Type][l >= loop_bound ? N - 1 - l : l] * density_of_states[l];
-                }
-            result(k) += local_interaction_energy_units * __part;
-        }
         }
         if (guaranteed_E_F) {
             // Abuse particle-hole symmetry if present
@@ -166,7 +157,19 @@ namespace LatticeCUT {
                 }
             }
         }
-        this->Delta.fill_with(result, 0.5);
+        else {
+            l_float u_contribution{};
+            for (int l = 0; l < N; ++l)
+            {
+                u_contribution += _expecs[mrock::symbolic_operators::SC_Type][l >= loop_bound ? N - 1 - l : l] * density_of_states[l];
+            }
+            if (step_num%4==0) std::cout << u_contribution << std::endl;
+            for (int k = 0; k < loop_bound; k++)
+            {
+                result(k) += local_interaction_energy_units * u_contribution;
+            }
+        }
+        this->Delta.fill_with(result, 0.25);
 		this->Delta.clear_noise(PRECISION);
 		result -= initial_values;
 		++step_num;
