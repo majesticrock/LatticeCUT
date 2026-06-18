@@ -163,7 +163,6 @@ namespace LatticeCUT {
             {
                 u_contribution += _expecs[mrock::symbolic_operators::SC_Type][l >= loop_bound ? N - 1 - l : l] * density_of_states[l];
             }
-            if (step_num%4==0) std::cout << u_contribution << std::endl;
             for (int k = 0; k < loop_bound; k++)
             {
                 result(k) += local_interaction_energy_units * u_contribution;
