@@ -3,6 +3,7 @@
 # Set architecture: "IceLake" or "CascadeLake"
 arch="CascadeLake"
 LATTICE_TYPE="bcc"
+EXTRA="--exclude=node60"
 
 input_file="params/for_auto.txt"
 readarray -t NEW_VALUES < "${input_file}"
@@ -65,5 +66,5 @@ for NEW_VALUE in "${NEW_VALUES[@]}"; do
       slurm/tc.slurm > "$slurm_path"
 
   # Submit the job
-  sbatch "$slurm_path"
+  sbatch "$EXTRA" "$slurm_path"
 done
