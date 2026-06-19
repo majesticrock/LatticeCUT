@@ -159,6 +159,7 @@ namespace LatticeCUT {
         }
         else {
             l_float u_contribution{};
+            #pragma omp parallel for reduction(+:u_contribution)
             for (int l = 0; l < N; ++l)
             {
                 u_contribution += _expecs[mrock::symbolic_operators::SC_Type][l >= loop_bound ? N - 1 - l : l] * density_of_states[l];

@@ -44,7 +44,7 @@ namespace LatticeCUT {
 #ifdef _iterative_selfconsistency
 		auto solver = mrock::utility::Selfconsistency::make_iterative<l_float>(&model, &(model.Delta));
 #else
-		auto solver = mrock::utility::Selfconsistency::make_broyden<l_float>(&model, &(model.Delta), 300);
+		auto solver = mrock::utility::Selfconsistency::make_broyden<l_float>(&model, &(model.Delta), 0);
 #endif
         l_float T{};
         l_float current_dT{INITIAL_DT};
