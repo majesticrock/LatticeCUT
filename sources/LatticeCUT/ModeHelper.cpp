@@ -276,7 +276,7 @@ namespace LatticeCUT {
 #ifdef _iterative_selfconsistency
 		auto solver = mrock::utility::Selfconsistency::make_iterative<l_float>(model.get(), &model->Delta);
 #else
-		auto solver = mrock::utility::Selfconsistency::make_broyden<l_float>(model.get(), &model->Delta, 0);
+		auto solver = mrock::utility::Selfconsistency::make_broyden<l_float>(model.get(), &model->Delta, model->local_interaction < 0.3 ? 100 : 0);
 #endif
 		solver.compute(true, 700U);
 		if(!model->Delta.converged) {
