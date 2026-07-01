@@ -1,7 +1,7 @@
 #pragma once
 #include "GlobalDefinitions.hpp"
-#include <mrock/utility/UnderlyingFloatingPoint.hpp>
-#include <mrock/utility/IsComplex.hpp>
+#include <mrock/utility/UnderlyingRealType.hpp>
+#include <mrock/utility/is_complex.hpp>
 #include <vector>
 #include <complex>
 #include <random>
@@ -23,7 +23,7 @@ enum ComplexAttributePolicy { Magnitude, SeperateRealAndImaginary };
 		bool converged{};
 
 		using value_type = DataType;
-		using RealType = mrock::utility::UnderlyingFloatingPoint_t<DataType>;
+		using RealType = mrock::utility::UnderlyingRealType_t<DataType>;
 
 		~ModelAttributes() = default;
 		ModelAttributes() = default;
@@ -41,7 +41,7 @@ enum ComplexAttributePolicy { Magnitude, SeperateRealAndImaginary };
 			std::mt19937 rng(dev());
 			std::uniform_real_distribution<> dis(0.0, 2.0 * 3.1415926);
 			for (auto& value : ret) {
-				if constexpr (mrock::utility::is_complex<DataType>()) {
+				if constexpr (mrock::utility::is_complex_v<DataType>) {
 					value = std::polar(dis(rng), dis(rng));
 				}
 				else {
@@ -180,7 +180,7 @@ enum ComplexAttributePolicy { Magnitude, SeperateRealAndImaginary };
 		}
 
 		inline ModelAttributes<RealType> real() const {
-			if constexpr (mrock::utility::is_complex<DataType>()) {
+			if constexpr (mrock::utility::is_complex_v<DataType>) {
 				ModelAttributes<RealType> ret;
 				ret.converged = this->converged;
 				ret.selfconsistency_values.resize(this->size());
@@ -195,7 +195,7 @@ enum ComplexAttributePolicy { Magnitude, SeperateRealAndImaginary };
 			}
 		};
 		inline ModelAttributes<RealType> imag() const {
-			if constexpr (mrock::utility::is_complex<DataType>()) {
+			if constexpr (mrock::utility::is_complex_v<DataType>) {
 				ModelAttributes<RealType> ret;
 				ret.converged = this->converged;
 				ret.selfconsistency_values.resize(this->size());
@@ -213,7 +213,7 @@ enum ComplexAttributePolicy { Magnitude, SeperateRealAndImaginary };
 			}
 		};
 		inline ModelAttributes<RealType> abs() const {
-			if constexpr (mrock::utility::is_complex<DataType>()) {
+			if constexpr (mrock::utility::is_complex_v<DataType>) {
 				return ModelAttributes<RealType>(*this, Magnitude);
 			}
 			else {

@@ -10,9 +10,9 @@
 #define _XP
 #endif
 
-#define IEOM_CLASS_TYPE mrock::utility::Numerics::iEoM::XPResolvent<ModeHelper, l_float, 12, false>
+#define IEOM_CLASS_TYPE mrock::iEoM::XPResolvent<ModeHelper, l_float, 12, false>
 
-#include <mrock/utility/Numerics/iEoM/XPResolvent.hpp>
+#include <mrock/iEoM/XPResolvent.hpp>
 
 namespace LatticeCUT {
 	enum class InvestigatedOperator { Full = 0, NearZero = 1, NearDoublePeaks = 2, Preset = 255 };

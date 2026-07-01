@@ -2,7 +2,7 @@
 #include <mrock/info.h>
 #include <mrock/utility/OutputConvenience.hpp>
 #include <mrock/utility/info_to_json.hpp>
-#include <mrock/utility/FunctionTime.hpp>
+#include <mrock/utility/function_time.hpp>
 
 #include "LatticeCUT/T_C.hpp"
 #include "LatticeCUT/ModeHelper.hpp"

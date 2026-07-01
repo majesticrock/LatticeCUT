@@ -4,8 +4,8 @@
 
 #include "preset_operator.hpp"
 
-#define ieom_diag model->density_of_states[k]
-#define ieom_offdiag model->density_of_states[k] * model->density_of_states[l]
+#define iEoM_diag model->density_of_states[k]
+#define iEoM_offdiag model->density_of_states[k] * model->density_of_states[l]
 
 #ifdef _complex
 #define __conj(z) std::conj(z)
@@ -182,11 +182,11 @@ namespace LatticeCUT {
 				}
 				else {
 					for (int l = 0; l < loop_end; ++l) {
-						M(i * loop_end + k, j * loop_end + l) += ieom_offdiag * computeTerm(term, k + loop_offset, l + loop_offset);
+						M(i * loop_end + k, j * loop_end + l) += iEoM_offdiag * computeTerm(term, k + loop_offset, l + loop_offset);
 					}
 				}
 			}
-			M(i * loop_end + k, j * loop_end + k) += ieom_diag * diag_buffer;
+			M(i * loop_end + k, j * loop_end + k) += iEoM_diag * diag_buffer;
 		}
     }
 
@@ -202,7 +202,7 @@ namespace LatticeCUT {
 					throw std::runtime_error("Offdiagonal term in N!");
 				}
 			}
-			N(i * loop_end + k, j * loop_end + k) *= ieom_diag;
+			N(i * loop_end + k, j * loop_end + k) *= iEoM_diag;
 		}
     }
 
