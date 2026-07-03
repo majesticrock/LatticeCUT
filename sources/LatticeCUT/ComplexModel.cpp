@@ -123,7 +123,7 @@ namespace LatticeCUT {
 #endif
             for (int l = phonon_lower_bound(energy_k); l <= phonon_upper_bound(energy_k); ++l)
             {
-                __part -= _expecs[mrock::symbolic_operators::SC_Type][l >= loop_bound ? N - 1 - l : l] * density_of_states[l];
+                __part -= _expecs[mrock::symbolic_operators::OperatorType::SC][l >= loop_bound ? N - 1 - l : l] * density_of_states[l];
             }
 #ifdef BCS_INTERACTION
             }
@@ -133,7 +133,7 @@ namespace LatticeCUT {
                 __part = l_float{};
                 for (int l = 0; l < N; ++l)
                 {
-                    __part += _expecs[mrock::symbolic_operators::SC_Type][l >= loop_bound ? N - 1 - l : l] * density_of_states[l];
+                    __part += _expecs[mrock::symbolic_operators::OperatorType::SC][l >= loop_bound ? N - 1 - l : l] * density_of_states[l];
                 }
             result(k) += local_interaction_energy_units * __part;
         }
@@ -230,13 +230,13 @@ namespace LatticeCUT {
     const std::map<mrock::symbolic_operators::OperatorType, std::vector<std::complex<l_float>>> &ComplexModel::get_expectation_values() const
     {
 		if (_expecs.empty()) {
-			_expecs.emplace(mrock::symbolic_operators::Number_Type, std::vector<std::complex<l_float>>(N));
-			_expecs.emplace(mrock::symbolic_operators::SC_Type, std::vector<std::complex<l_float>>(N));
+			_expecs.emplace(mrock::symbolic_operators::OperatorType::Number, std::vector<std::complex<l_float>>(N));
+			_expecs.emplace(mrock::symbolic_operators::OperatorType::SC, std::vector<std::complex<l_float>>(N));
 		}
 #pragma omp parallel for
 		for (int k = 0; k < N; ++k) {
-			_expecs.at(mrock::symbolic_operators::Number_Type)[k] = this->occupation_index(k);
-			_expecs.at(mrock::symbolic_operators::SC_Type)[k] = this->sc_expectation_value_index(k);
+			_expecs.at(mrock::symbolic_operators::OperatorType::Number)[k] = this->occupation_index(k);
+			_expecs.at(mrock::symbolic_operators::OperatorType::SC)[k] = this->sc_expectation_value_index(k);
 		}
 
 		return _expecs;

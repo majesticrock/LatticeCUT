@@ -36,10 +36,10 @@ namespace LatticeCUT {
 
     l_float ModeHelper::get_expectation_value(mrock::symbolic_operators::WickOperator const& op, int k) const
     {
-        if (op.type == mrock::symbolic_operators::Number_Type) {
+        if (op.type == mrock::symbolic_operators::OperatorType::Number) {
 			return model->occupation_index(k);
 		}
-		else if (op.type == mrock::symbolic_operators::SC_Type) {
+		else if (op.type == mrock::symbolic_operators::OperatorType::SC) {
 			if (op.is_daggered) {
 				return __conj(model->sc_expectation_value_index(k));
 			}
