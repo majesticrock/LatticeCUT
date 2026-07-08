@@ -88,10 +88,14 @@ namespace LatticeCUT {
 		return value;
     }
 
-	void ModeHelper::createStartingStates()
+	void ModeHelper::create_starting_states()
     {
 		starting_states.clear();
-		starting_states.push_back({ _parent::Vector::Zero(antihermitian_discretization), _parent::Vector::Zero(hermitian_discretization), "SC" });
+		starting_states.push_back({ 
+			iEoM_algorithm::Vector::Zero(antihermitian_discretization), 
+			iEoM_algorithm::Vector::Zero(hermitian_discretization), 
+			"SC" 
+		});
 		if (investigated_operator == InvestigatedOperator::Preset) {
 			for (int k = 0; k < __preset_phase.size() && k < antihermitian_discretization; ++k) {
 				starting_states[0][0](k) = __preset_phase[k];
@@ -136,7 +140,7 @@ namespace LatticeCUT {
 		}
     }
 
-	void ModeHelper::fillMatrices()
+	void ModeHelper::fill_matrices()
     {
 		K_plus.setZero(hermitian_discretization, hermitian_discretization);
 		K_minus.setZero(antihermitian_discretization, antihermitian_discretization);
@@ -260,7 +264,7 @@ namespace LatticeCUT {
     }
 
 	ModeHelper::ModeHelper(mrock::utility::InputFileReader& input)
-        : _parent(this, SQRT_PRECISION, 
+        : iEoM_algorithm(SQRT_PRECISION, 
             static_cast<int>(loop_end_init * hermitian_size    ),
             static_cast<int>(loop_end_init * antihermitian_size), 
             false, false),
