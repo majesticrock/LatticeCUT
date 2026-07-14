@@ -7,9 +7,6 @@ set(CMAKE_CXX_STANDARD_REQUIRED True)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
 list(APPEND CMAKE_PREFIX_PATH "~/usr/local")
-include_directories(
-    $ENV{HOME}/usr/local/include
-)
 
 set(MKL_LINK static)
 set(MKL_THREADING gnu_thread)
@@ -26,7 +23,13 @@ include(${CMAKE_SOURCE_DIR}/cmake/MKLFlags.cmake)
 include(${CMAKE_SOURCE_DIR}/cmake/SelectClusterBuildOptions.cmake)
 
 find_package(OpenMP REQUIRED)
-find_package(mrock REQUIRED)
+find_package(mrock 
+    REQUIRED 
+    COMPONENTS 
+        symbolic_operators 
+        iEoM 
+        utility
+)
 
 include(${CMAKE_CURRENT_SOURCE_DIR}/../../PhdUtility/cmake/mrock-information.cmake)
 
@@ -50,8 +53,6 @@ if (LATTICE_CUT_FULL_DIAG)
     target_compile_definitions(latticecut PRIVATE LATTICE_CUT_FULL_DIAG)
 endif()
 
-
 add_subdirectory(sources/DOS)
 
 target_link_libraries(latticecut PRIVATE OpenMP::OpenMP_CXX DOS ${mrock_LIBRARIES})
-target_include_directories(latticecut PRIVATE ${mrock_INCLUDE_DIRS})
