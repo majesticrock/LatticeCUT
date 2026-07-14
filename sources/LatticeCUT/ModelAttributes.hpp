@@ -33,7 +33,7 @@ enum ComplexAttributePolicy { Magnitude, SeperateRealAndImaginary };
 		ModelAttributes& operator=(const ModelAttributes& other) = default;
 		ModelAttributes& operator=(ModelAttributes&& other) = default;
 
-		inline static ModelAttributes Random(size_t size)
+		inline static ModelAttributes Random(std::size_t size)
 		{
 			ModelAttributes<DataType> ret;
 			ret.selfconsistency_values.resize(size);
@@ -62,18 +62,18 @@ enum ComplexAttributePolicy { Magnitude, SeperateRealAndImaginary };
 		}
 
 		template<class Allocator>
-		inline static ModelAttributes FromAllocator(Allocator const& alloc, size_t size)
+		inline static ModelAttributes FromAllocator(Allocator const& alloc, std::size_t size)
 		{
 			ModelAttributes<DataType> ret;
 			ret.selfconsistency_values.resize(size);
-			for (size_t i = 0U; i < size; ++i) {
+			for (std::size_t i = 0U; i < size; ++i) {
 				ret.selfconsistency_values[i] = alloc(i);
 			}
 			return ret;
 		}
 
 		// Using this constructor constructs the attribute vector with a fixed value, default is 0
-		explicit ModelAttributes(const size_t number_of_attributes, const DataType& default_value = DataType{})
+		explicit ModelAttributes(const std::size_t number_of_attributes, const DataType& default_value = DataType{})
 			: selfconsistency_values(number_of_attributes, default_value) {};
 
 		ModelAttributes(const ModelAttributes<std::complex<DataType>>& other, ComplexAttributePolicy complexAttributePolicy)
@@ -81,13 +81,13 @@ enum ComplexAttributePolicy { Magnitude, SeperateRealAndImaginary };
 			converged{ other.converged }
 		{
 			if (complexAttributePolicy == Magnitude) {
-				for (size_t i = 0U; i < selfconsistency_values.size(); ++i)
+				for (std::size_t i = 0U; i < selfconsistency_values.size(); ++i)
 				{
 					selfconsistency_values[i] = std::abs(other.selfconsistency_values[i]);
 				}
 			}
 			else if (complexAttributePolicy == SeperateRealAndImaginary) {
-				for (size_t i = 0U; i < other.selfconsistency_values.size(); ++i)
+				for (std::size_t i = 0U; i < other.selfconsistency_values.size(); ++i)
 				{
 					selfconsistency_values[i] = std::real(other.selfconsistency_values[i]);
 					selfconsistency_values[i + other.selfconsistency_values.size()] = std::imag(other.selfconsistency_values[i]);
@@ -102,15 +102,15 @@ enum ComplexAttributePolicy { Magnitude, SeperateRealAndImaginary };
 		* utility functions
 		*/
 
-		inline DataType& operator[](size_t i) {
+		inline DataType& operator[](std::size_t i) {
 			MROCK_BOUND_CHECK(i >= selfconsistency_values.size(), "ModelAttributes accessed out of bounds with i=" + std::to_string(i));
 			return selfconsistency_values[i];
 		};
-		inline const DataType& operator[](size_t i) const {
+		inline const DataType& operator[](std::size_t i) const {
 			MROCK_BOUND_CHECK(i >= selfconsistency_values.size(), "ModelAttributes accessed out of bounds with i=" + std::to_string(i));
 			return selfconsistency_values[i];
 		};
-		inline size_t size() const noexcept {
+		inline std::size_t size() const noexcept {
 			return selfconsistency_values.size();
 		}
 		inline void push_back(const DataType& value) {
@@ -175,7 +175,7 @@ enum ComplexAttributePolicy { Magnitude, SeperateRealAndImaginary };
 			return false;
 		};
 
-		inline bool isFinite(const size_t i) const {
+		inline bool isFinite(const std::size_t i) const {
 			return !is_zero(this->selfconsistency_values[i]);
 		}
 
@@ -184,7 +184,7 @@ enum ComplexAttributePolicy { Magnitude, SeperateRealAndImaginary };
 				ModelAttributes<RealType> ret;
 				ret.converged = this->converged;
 				ret.selfconsistency_values.resize(this->size());
-				for (size_t i = 0U; i < this->selfconsistency_values.size(); ++i)
+				for (std::size_t i = 0U; i < this->selfconsistency_values.size(); ++i)
 				{
 					ret.selfconsistency_values[i] = std::real(this->selfconsistency_values[i]);
 				}
@@ -199,7 +199,7 @@ enum ComplexAttributePolicy { Magnitude, SeperateRealAndImaginary };
 				ModelAttributes<RealType> ret;
 				ret.converged = this->converged;
 				ret.selfconsistency_values.resize(this->size());
-				for (size_t i = 0U; i < this->selfconsistency_values.size(); ++i)
+				for (std::size_t i = 0U; i < this->selfconsistency_values.size(); ++i)
 				{
 					ret.selfconsistency_values[i] = std::imag(this->selfconsistency_values[i]);
 				}
@@ -228,7 +228,7 @@ enum ComplexAttributePolicy { Magnitude, SeperateRealAndImaginary };
 			return this->selfconsistency_values;
 		};
 		// Returns a copy of the first N elements of the internal vector
-		inline std::vector<DataType> as_vector(size_t N) {
+		inline std::vector<DataType> as_vector(std::size_t N) {
 			std::vector<DataType> ret(N);
 			std::copy_n(this->selfconsistency_values.begin(), N, ret.begin());
 			return ret;
@@ -238,14 +238,14 @@ enum ComplexAttributePolicy { Magnitude, SeperateRealAndImaginary };
 		*/
 
 		inline ModelAttributes& operator+=(const ModelAttributes& rhs) {
-			for (size_t i = 0U; i < this->selfconsistency_values.size(); ++i)
+			for (std::size_t i = 0U; i < this->selfconsistency_values.size(); ++i)
 			{
 				this->selfconsistency_values[i] += rhs.selfconsistency_values[i];
 			}
 			return *this;
 		};
 		inline ModelAttributes& operator-=(const ModelAttributes& rhs) {
-			for (size_t i = 0U; i < this->selfconsistency_values.size(); ++i)
+			for (std::size_t i = 0U; i < this->selfconsistency_values.size(); ++i)
 			{
 				this->selfconsistency_values[i] -= rhs.selfconsistency_values[i];
 			}

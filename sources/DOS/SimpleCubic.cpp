@@ -9,7 +9,7 @@
 namespace DOS {
 	constexpr double factor_range = 25;
 
-    SimpleCubic::SimpleCubic(size_t N, double E_F, double debye)
+    SimpleCubic::SimpleCubic(std::size_t N, double E_F, double debye)
         : Base(N, -1, 1, E_F, factor_range * debye)
     { }
 

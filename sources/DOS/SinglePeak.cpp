@@ -3,7 +3,7 @@
 
 namespace DOS {
     constexpr double factor_range = 25;
-    SinglePeak::SinglePeak(size_t N, double E_F, double debye, double peak_weight)
+    SinglePeak::SinglePeak(std::size_t N, double E_F, double debye, double peak_weight)
         : Base(N, -1, 1, E_F, factor_range * debye), rel_peak_weight{ peak_weight / 100.0 }
     { }
 

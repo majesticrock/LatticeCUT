@@ -25,7 +25,7 @@ namespace DOS {
 
     struct Base {
         virtual ~Base() = default;
-        Base(size_t N, double min_energy, double max_energy, double fine_center, double fine_range);
+        Base(std::size_t N, double min_energy, double max_energy, double fine_center, double fine_range);
 
         // The integration weight is contained in the returned vector
         // so that a simple summation of the vector elements suffices to compute an integral
@@ -44,7 +44,7 @@ namespace DOS {
         inline double get_max_energy() const noexcept {
             return _energies.E_min;
         }
-        inline size_t size() const noexcept {
+        inline std::size_t size() const noexcept {
             return _dos.size();
         }
     protected:

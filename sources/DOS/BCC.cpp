@@ -8,7 +8,7 @@ namespace DOS {
     using dos_complex = std::complex<_internal_precision>;
     constexpr double factor_range = 10;
 
-    BCC::BCC(size_t N, double E_F, double debye)
+    BCC::BCC(std::size_t N, double E_F, double debye)
         : Base(N, -1., 1., E_F, factor_range * debye)
     { }
 

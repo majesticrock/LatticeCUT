@@ -10,7 +10,7 @@
 
 namespace DOS {
     struct HoneyComb : public Base {
-        HoneyComb(size_t N, double E_F, double debye);
+        HoneyComb(std::size_t N, double E_F, double debye);
 
     protected:
         void compute() final;

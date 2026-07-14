@@ -9,7 +9,7 @@
 
 namespace DOS {
     struct SimpleCubic : public Base {
-        SimpleCubic(size_t N, double E_F, double debye);
+        SimpleCubic(std::size_t N, double E_F, double debye);
 
     protected:
         void compute() final;

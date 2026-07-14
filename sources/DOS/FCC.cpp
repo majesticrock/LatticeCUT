@@ -7,7 +7,7 @@ namespace DOS {
     using dos_complex = std::complex<_internal_precision>;
     constexpr double factor_range = 10;
 
-    FCC::FCC(size_t N, double E_F, double debye)
+    FCC::FCC(std::size_t N, double E_F, double debye)
         : Base(N, -1. + 1e-10, 1., E_F, factor_range * debye)
     { }
 

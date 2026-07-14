@@ -8,21 +8,21 @@ constexpr double TARGET_DT = 1e-5;
 constexpr double INITIAL_DT = 1e-3;
 constexpr double DELTA_F_EPS = 1e-4;
 
-constexpr size_t BROYDEN_ITER = 700;
+constexpr std::size_t BROYDEN_ITER = 700;
 constexpr double BROYDEN_EPS = 1e-8;
 constexpr double ZERO_EPS = BROYDEN_EPS;
 
 namespace LatticeCUT {
     template<class T>
-    void permute(std::vector<T>& input, const std::vector<size_t>& indices)
+    void permute(std::vector<T>& input, const std::vector<std::size_t>& indices)
     {
         std::vector<bool> done(input.size());
-        for (size_t i = 0U; i < input.size(); ++i) {
+        for (std::size_t i = 0U; i < input.size(); ++i) {
             if (done[i]) continue;
 
             done[i] = true;
-            size_t prev_j = i;
-            size_t j = indices[i];
+            std::size_t prev_j = i;
+            std::size_t j = indices[i];
             while(i != j) {
                 std::swap(input[prev_j], input[j]);
                 done[j] = true;
@@ -109,7 +109,7 @@ namespace LatticeCUT {
                     return std::abs(Tvec-T) < TARGET_DT; }
                 );
             if (found_iter != temperatures.end()) {
-                const size_t index = std::distance(temperatures.begin(), found_iter);
+                const std::size_t index = std::distance(temperatures.begin(), found_iter);
 
                 last_delta = std::abs(std::ranges::max(finite_gaps[index], [](const double lhs, const double rhs){ return std::abs(lhs) < std::abs(rhs);}));
                 last_delta_F = finite_gaps[index][index_at_ef];
@@ -191,9 +191,9 @@ namespace LatticeCUT {
             }
         } while(std::abs(delta_max) > ZERO_EPS || current_dT >= TARGET_DT);
 
-        std::vector<size_t> indices(temperatures.size());
-        std::iota(indices.begin(), indices.end(), size_t{});
-        std::sort(indices.begin(), indices.end(), [&](size_t A, size_t B) -> bool { return temperatures[A] < temperatures[B]; });
+        std::vector<std::size_t> indices(temperatures.size());
+        std::iota(indices.begin(), indices.end(), std::size_t{});
+        std::sort(indices.begin(), indices.end(), [&](std::size_t A, std::size_t B) -> bool { return temperatures[A] < temperatures[B]; });
         permute(temperatures, indices);
         permute(finite_gaps, indices);
         permute(true_gaps, indices);
@@ -201,7 +201,7 @@ namespace LatticeCUT {
         permute(chemical_potentials, indices);
 
         max_gaps.resize(finite_gaps.size());
-        for (size_t i = 0U; i < max_gaps.size(); ++i) {
+        for (std::size_t i = 0U; i < max_gaps.size(); ++i) {
             max_gaps[i] = std::abs(std::ranges::max(finite_gaps[i], [](const l_float A, const l_float B) -> bool { 
                     return std::abs(A) < std::abs(B);
                 }));

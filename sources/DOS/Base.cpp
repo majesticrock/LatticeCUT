@@ -3,7 +3,7 @@
 #include <numeric>
 
 namespace DOS {
-    Base::Base(size_t N, double min_energy, double max_energy, double fine_center, double fine_range)
+    Base::Base(std::size_t N, double min_energy, double max_energy, double fine_center, double fine_range)
         : _energies(min_energy, max_energy, fine_center - (max_energy - min_energy) * fine_range, fine_center + (max_energy - min_energy) * fine_range, N), _dos(N)
     {
     }

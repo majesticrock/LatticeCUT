@@ -4,7 +4,7 @@
 namespace DOS {
     constexpr double factor_range = 10;
 
-    HoneyComb::HoneyComb(size_t N, double E_F, double debye) 
+    HoneyComb::HoneyComb(std::size_t N, double E_F, double debye) 
         : Base(N, -1, 1, E_F, factor_range * debye)
     { }
 
