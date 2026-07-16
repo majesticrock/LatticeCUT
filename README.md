@@ -64,6 +64,6 @@ These two are present on the compute cluster used to generate the data.
 Before executing the program, make sure to build and run FermionCommute
 https://github.com/majesticrock/FermionCommute/
 such that you have the directory `../commutators/lattice_cut/` filled with the results of the commutators.
-`./build/latticecut <parameter file>` will run the program using the specified parameter file.
+`./build/default/latticecut <parameter file>` will run the program using the specified parameter file.
 For large scale computations, SLURM scripts are provided.
 A few additional bash scripts are provided for ease of running multiple jobs.

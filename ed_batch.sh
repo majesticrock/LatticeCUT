@@ -1,7 +1,7 @@
 #!/bin/bash
 
-# Set architecture: "IceLake" or "CascadeLake"
-arch="CascadeLake"
+# Set architecture: "icelake" or "cascadelake"
+arch="cascadelake"
 LATTICE_TYPE="bcc"
 
 input_file="params/for_auto.txt"
@@ -61,7 +61,7 @@ for NEW_VALUE in "${NEW_VALUES[@]}"; do
   sed -e "s|#SBATCH --job-name=${LATTICE_TYPE}_ed|#SBATCH --job-name=${LATTICE_TYPE}_${NEW_NAME}_${CURRENT_TIME}|" \
       -e "s|#SBATCH --output=/home/althueser/phd/cpp/LatticeCUT/output_${LATTICE_TYPE}.txt|#SBATCH --output=/home/althueser/phd/cpp/LatticeCUT/output_${CURRENT_TIME}_$NEW_NAME.txt|" \
       -e "s|^#SBATCH --constraint=.*|#SBATCH --constraint=${arch}|" \
-      -e "s|./build_.*/latticecut .*|./build_${arch}_ed/latticecut auto_generated_${CURRENT_TIME}/$NEW_NAME.config|" \
+      -e "s|./build/.*/latticecut .*|./build/${arch}_ed/latticecut auto_generated_${CURRENT_TIME}/$NEW_NAME.config|" \
       slurm/${LATTICE_TYPE}_ed.slurm > "$slurm_path"
 
   # Submit the job
