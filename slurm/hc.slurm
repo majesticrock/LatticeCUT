@@ -30,7 +30,7 @@ date
 echo "--- START ---"
 
 ## execute binary using mpirun on the allocated computation resource; the number of cores is $
-./build_IceLake/latticecut params/cluster/hc.config
+./build/icelake/latticecut params/cluster/hc.config
 
 echo "--- END ---"
 date

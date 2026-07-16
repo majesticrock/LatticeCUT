@@ -4,7 +4,7 @@
 #include <iostream>
 #include <iomanip>
 
-DOS::EnergyRanges::EnergyRanges(double _E_min, double _E_max, double _inner_min, double _inner_max, int _N)
+DOS::EnergyRanges::EnergyRanges(double _E_min, double _E_max, [[maybe_unused]] double _inner_min, [[maybe_unused]] double _inner_max, int _N)
 	: E_min{_E_min}, E_max{_E_max}, total_range{E_max - E_min},
 #ifndef UNIFORM_DISCRETIZATION
 	inner_min{std::max(E_min, _inner_min)}, inner_max{std::min(E_max, _inner_max)}, 
@@ -64,7 +64,7 @@ double DOS::EnergyRanges::index_to_energy(int index) const
 #endif
 }
 
-double DOS::EnergyRanges::get_dE(int index) const
+double DOS::EnergyRanges::get_dE([[maybe_unused]] int index) const
 {
 #ifdef UNIFORM_DISCRETIZATION
 	return dE;

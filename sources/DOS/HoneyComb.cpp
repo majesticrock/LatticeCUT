@@ -31,7 +31,7 @@ namespace DOS {
     void HoneyComb::compute() 
     {
         const double ratio = 6. / _energies.total_range;
-        for(int k = 0; k < _dos.size(); ++k) {
+        for(int k = 0; k < std::ssize(_dos); ++k) {
             const _internal_precision z = ratio * _energies.index_to_energy(k);
             _dos[k] = ratio * _energies.get_dE(k) * (LONG_1_PI * LONG_1_PI) * (std::abs(z) / std::sqrt(capital_Z0(z))) 
                         * boost::math::ellint_1(std::sqrt(capital_Z1(z) / capital_Z0(z)));

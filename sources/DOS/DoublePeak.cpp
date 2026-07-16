@@ -13,7 +13,7 @@ namespace DOS {
         constexpr double peak_position = 0.5;
         const double rel_peak_height = 0.5 * rel_peak_weight / peak_width * (1. - (2. * peak_width)) / (1. - rel_peak_weight);
 
-        for(int k = 0; k < _dos.size(); ++k) {
+        for(int k = 0; k < std::ssize(_dos); ++k) {
             const double energy = _energies.index_to_energy(k);
             if (std::abs(energy - peak_position) < peak_width || std::abs(energy + peak_position) < peak_width) {
                 _dos[k] = rel_peak_height;

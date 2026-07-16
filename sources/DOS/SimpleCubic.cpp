@@ -1,9 +1,11 @@
 #include "SimpleCubic.hpp"
+
 #include <boost/math/special_functions/ellint_1.hpp>
 #include <boost/math/special_functions/ellint_2.hpp>
 #include <boost/math/special_functions/pow.hpp>
 #include <boost/math/quadrature/tanh_sinh.hpp>
 #include <boost/math/quadrature/gauss_kronrod.hpp>
+
 #include <iostream>
 
 namespace DOS {
@@ -76,7 +78,7 @@ namespace DOS {
 		const double ratio = 6. / _energies.total_range;
 		_dos.front() = 0.0;
 		_dos.back() = 0.0;
-        for (int k = 1; k < _dos.size() - 1; ++k) {
+        for (int k = 1; k < std::ssize(_dos) - 1; ++k) {
 			const _internal_precision epsilon = ratio * _energies.index_to_energy(k);
 
 			try {

@@ -31,7 +31,7 @@ echo "--- START ---"
 
 export OMP_NUM_THREADS=$SLURM_CPUS_PER_TASK
 ## execute binary using mpirun on the allocated computation resource; the number of cores is $
-./build_CascadeLake_ed/latticecut params/cluster/fcc.config
+./build/cascadelake_ed/latticecut params/cluster/fcc.config
 
 echo "--- END ---"
 date

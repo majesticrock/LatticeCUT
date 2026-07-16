@@ -1,7 +1,10 @@
 #include "FCC.hpp"
-#include <complex>
-#include <iostream>
+
 #include <mrock/utility/Numerics/hypergeometric_2F1.hpp>
+
+#include <complex>
+#include <cstddef>
+#include <iostream>
 
 namespace DOS {
     using dos_complex = std::complex<_internal_precision>;
@@ -22,7 +25,7 @@ namespace DOS {
         const _internal_precision EPS = 1e-10;
         const _internal_precision ratio = 4. / _energies.total_range;
 
-        for(int k = 0; k < _dos.size(); ++k) {
+        for(int k = 0; k < std::ssize(_dos); ++k) {
             const dos_complex z = dos_complex{ratio * (one_half + _energies.index_to_energy(k)), EPS};
             const dos_complex one_over_z = 1.L / z;
 

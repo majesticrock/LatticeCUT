@@ -46,7 +46,7 @@ for dos in "${DOS_OPTIONS[@]}"; do
 
         # --- Generate slurm batch script ---
         sed \
-            -e "s|./build_CascadeLake/latticecut .*|./build_CascadeLake/latticecut ${CONFIG_FILE}|" \
+            -e "s|./build/cascadelake/latticecut .*|./build/cascadelake/latticecut ${CONFIG_FILE}|" \
             -e "s|^#SBATCH --mem=.*|#SBATCH --mem=${MEM}|" \
             -e "s|^#SBATCH --cpus-per-task=.*|#SBATCH --cpus-per-task=${CPUS}|" \
             -e "s|^#SBATCH[[:space:]]\+--output=.*|#SBATCH --output=${LOG_FILE}|" \

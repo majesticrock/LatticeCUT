@@ -20,7 +20,7 @@ namespace DOS {
     void BCC::compute()
     {
         const _internal_precision ratio = 2. / _energies.total_range;
-        for(int k = 0; k < _dos.size(); ++k) {
+        for(int k = 0; k < std::ssize(_dos); ++k) {
             const dos_complex energy = dos_complex{ratio * _energies.index_to_energy(k), 1e-15};
             const dos_complex ell  = elliptical_integral( one_half - one_half * std::sqrt(1.L - 1.L / (energy * energy)) );
             _dos[k] = -ratio * _energies.get_dE(k) * FOUR_OVER_PI_SQR * LONG_1_PI * (ell * ell / energy).imag();

@@ -23,5 +23,5 @@ for value in "${values[@]}"; do
     sed -i "s/^$name.*/$name $value/" "$config_file"
 
     # Execute the script ./exec.sh
-    ./build/latticecut $config_file
+    ./build/default/latticecut $config_file
 done

@@ -1,26 +1,27 @@
-cmake_minimum_required(VERSION 3.16)
+cmake_minimum_required(VERSION 3.30)
 
 project(LatticeCUT VERSION 2.1.0 LANGUAGES CXX)
 
-set(CMAKE_CXX_STANDARD 20)
-set(CMAKE_CXX_STANDARD_REQUIRED True)
-set(CMAKE_CXX_EXTENSIONS OFF)
+#
+# Set local settings and set the default build type as Release
+#
 
-list(APPEND CMAKE_PREFIX_PATH "~/usr/local")
+list(APPEND CMAKE_PREFIX_PATH "$ENV{HOME}/usr/local")
+set(Boost_DIR /usr/lib64/openmpi/lib/cmake/Boost-1.78.0)
 
-set(MKL_LINK static)
-set(MKL_THREADING gnu_thread)
-set(MKL_INTERFACE lp64)
-
-find_package(MKL CONFIG QUIET HINTS $ENV{MKLROOT})
-if (MKL_FOUND)
-    set(USE_MKL ON CACHE BOOL "Use Intel MKL" FORCE)
-else()
-    set(USE_MKL OFF CACHE BOOL "Use Intel MKL" FORCE)
+set(default_build_type "Release")
+if(NOT CMAKE_BUILD_TYPE AND NOT CMAKE_CONFIGURATION_TYPES)
+  set(CMAKE_BUILD_TYPE "${default_build_type}" CACHE
+      STRING "Choose the type of build." FORCE)
+  # Set the possible values of build type for cmake-gui
+  set_property(CACHE CMAKE_BUILD_TYPE PROPERTY STRINGS
+    "Debug" "Release" "MinSizeRel" "RelWithDebInfo")
 endif()
+message(STATUS "Build type is '${CMAKE_BUILD_TYPE}'.")
 
-include(${CMAKE_SOURCE_DIR}/cmake/MKLFlags.cmake)
-include(${CMAKE_SOURCE_DIR}/cmake/SelectClusterBuildOptions.cmake)
+#
+# Library specifics
+#
 
 find_package(OpenMP REQUIRED)
 find_package(mrock 
@@ -31,8 +32,6 @@ find_package(mrock
         utility
 )
 
-include(${CMAKE_CURRENT_SOURCE_DIR}/../../PhdUtility/cmake/mrock-information.cmake)
-
 add_executable(latticecut 
     sources/LatticeCUT.cpp
 )
@@ -42,7 +41,17 @@ target_sources(latticecut PRIVATE
     sources/LatticeCUT/T_C.cpp
     sources/LatticeCUT/ComplexModel.cpp
 )
-SET_COMPILER_FLAGS(latticecut)
+
+# provided by the mrock library
+mrock_generate_information_header(
+    OUTPUT "${CMAKE_CURRENT_BINARY_DIR}/generated/latticecut/info.h"
+    WORKING_DIRECTORY "${CMAKE_SOURCE_DIR}"
+    OUT_HEADER MROCK_GENERATED_INFO_HEADER
+    OUT_INCLUDE_DIR MROCK_GENERATED_INCLUDE_DIR
+)
+include(${CMAKE_CURRENT_LIST_DIR}/cmake/latticecut_options.cmake)
+# Sets include dir for the generated metadata header file
+target_include_directories(latticecut_options INTERFACE ${MROCK_GENERATED_INCLUDE_DIR})
 
 option(LATTICE_CUT_RESIDUALS "Compute residuals and eigenvectors of the transformed dynamical matrix." OFF)
 if (LATTICE_CUT_RESIDUALS)
@@ -55,4 +64,10 @@ endif()
 
 add_subdirectory(sources/DOS)
 
-target_link_libraries(latticecut PRIVATE OpenMP::OpenMP_CXX DOS ${mrock_LIBRARIES})
+target_link_libraries(latticecut 
+    PRIVATE 
+        OpenMP::OpenMP_CXX 
+        ${mrock_LIBRARIES}
+        DOS
+        latticecut_options
+)
