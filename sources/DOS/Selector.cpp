@@ -73,7 +73,7 @@ namespace DOS {
     std::vector<double> Selector::get_raw_dos() const
     {
         std::vector<double> ret(this->dos_ptr->get_dos());
-        for(int i = 0; i < ret.size(); ++i) {
+        for(int i = 0; i < std::ssize(ret); ++i) {
             ret[i] /= this->dos_ptr->get_energies().get_dE(i);
         }
         return ret;

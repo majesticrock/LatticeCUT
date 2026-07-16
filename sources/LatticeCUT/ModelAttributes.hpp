@@ -139,16 +139,13 @@ enum ComplexAttributePolicy { Magnitude, SeperateRealAndImaginary };
 		}
 		template<class Vector>
 		inline void fill_with(const Vector& vector) {
-			if (this->size() < vector.size())
-				this->selfconsistency_values.resize(vector.size());
-			
+			this->selfconsistency_values.resize(vector.size());
 			std::copy(vector.begin(), vector.end(), this->selfconsistency_values.begin());
 		}
 		template<class Vector>
 		inline void fill_with(const Vector& vector, RealType weight) {
-			assert(this->size() == vector.size());
-#pragma omp parallel for
-			for (int i = 0; i < vector.size(); ++i) { // use vector.size() in case vector.size() < this->size()
+			assert(std::ssize(*this) == std::ssize(vector));
+			for (auto i = 0; i < std::ssize(*this); ++i) {
 				this->selfconsistency_values[i] = (1. - weight) * this->selfconsistency_values[i] + weight * vector[i];
 			}
 		}

@@ -97,10 +97,10 @@ namespace LatticeCUT {
 			"SC" 
 		});
 		if (investigated_operator == InvestigatedOperator::Preset) {
-			for (int k = 0; k < __preset_phase.size() && k < antihermitian_discretization; ++k) {
+			for (int k = 0; k < std::ssize(__preset_phase) && k < antihermitian_discretization; ++k) {
 				starting_states[0][0](k) = __preset_phase[k];
 			}
-			for (int k = 0; k < __preset_amplitude.size() && k < hermitian_discretization; ++k) {
+			for (int k = 0; k < std::ssize(__preset_amplitude) && k < hermitian_discretization; ++k) {
 				starting_states[0][1](k) = __preset_amplitude[k];
 			}
 			return;
