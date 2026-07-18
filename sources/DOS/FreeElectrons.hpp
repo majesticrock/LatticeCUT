@@ -1,6 +1,7 @@
 #pragma once
 #include "Base.hpp"
 
+#include <cstddef>
 
 /**
  * Computes the DOS for free electrons in N dimensions.
@@ -8,14 +9,14 @@
  */
 
 namespace DOS {
-    struct FreeElectrons : public Base {
-        const int dimension;
+struct FreeElectrons : public Base {
+    const int dimension;
 
-        FreeElectrons(std::size_t N, double band_width, int _dimension, double E_F, double debye);
+    FreeElectrons(std::size_t N, double band_width, int _dimension, double E_F, double debye);
 
-        double normalization(double mass=1, double hbar=1) const;
+    double normalization(double mass = 1, double hbar = 1) const;
 
-    protected:
-        void compute() final;
-    };
-}
+protected:
+    void compute() final;
+};
+}  // namespace DOS

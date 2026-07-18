@@ -1,6 +1,8 @@
 #pragma once
 #include "Base.hpp"
 
+#include <cstddef>
+
 /**
  * DOS formula from Exact evaluation of the body centred cubic lattice Green function, G S Joyce
  * Dynamical mean field study of the Dirac liquid, S.A. Jafari
@@ -9,10 +11,10 @@
  */
 
 namespace DOS {
-    struct HoneyComb : public Base {
-        HoneyComb(std::size_t N, double E_F, double debye);
+struct HoneyComb : public Base {
+    HoneyComb(std::size_t N, double E_F, double debye);
 
-    protected:
-        void compute() final;
-    };
-}
+protected:
+    void compute() final;
+};
+}  // namespace DOS

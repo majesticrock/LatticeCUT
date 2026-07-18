@@ -1,91 +1,90 @@
 #include "Selector.hpp"
 
-#include <stdexcept>
-#include <cctype>
-#include <algorithm>
-#include <numeric>
-#include <iostream>
-
-#include "FreeElectrons.hpp"
-#include "SimpleCubic.hpp"
-#include "FCC.hpp"
 #include "BCC.hpp"
-#include "HoneyComb.hpp"
-#include "SinglePeak.hpp"
 #include "DoublePeak.hpp"
+#include "EnergyRanges.hpp"
+#include "FCC.hpp"
+#include "FreeElectrons.hpp"
+#include "HoneyComb.hpp"
+#include "SimpleCubic.hpp"
+#include "SinglePeak.hpp"
+
+#include <algorithm>
+#include <cctype>
+#include <iostream>
+#include <numeric>
+#include <stdexcept>
+#include <vector>
 
 constexpr double FREE_3D_MAX_ENERGY = 5.0;
 
 namespace DOS {
-    std::vector<double> const& Selector::select_dos(const std::string& name, int N, double E_F, double debye) 
-    {
-        const std::string free_electrons_name = "free_electrons";
-        const std::string sc_name = "sc";
-        const std::string fcc_name = "fcc";
-        const std::string bcc_name = "bcc";
-        const std::string honeycomb_name = "hc";
-        const std::string single_peak_name = "single_peak";
-        const std::string double_peak_name = "double_peak";
+std::vector<double> const& Selector::select_dos(const std::string& name, int N, double E_F, double debye) {
+    const std::string free_electrons_name = "free_electrons";
+    const std::string sc_name = "sc";
+    const std::string fcc_name = "fcc";
+    const std::string bcc_name = "bcc";
+    const std::string honeycomb_name = "hc";
+    const std::string single_peak_name = "single_peak";
+    const std::string double_peak_name = "double_peak";
 
-        if (dos_ptr) return dos_ptr->get_dos();
-
-        if (name.rfind(free_electrons_name, 0) == 0) {
-            std::string dimension_str = name.substr(free_electrons_name.length());
-            // std::isdigit does not seem to work for some reason unbeknownst to me
-            if (dimension_str.empty() || !std::all_of(dimension_str.begin(), dimension_str.end(), ::isdigit))
-                throw std::invalid_argument("For free_electrons, please provide dimension as integer after underscore, e.g. 'free_electrons3'");
-
-            dos_ptr = std::make_unique<FreeElectrons>(N, FREE_3D_MAX_ENERGY, std::stoi(dimension_str), E_F, debye);
-        }
-        else if (name == sc_name) {
-            dos_ptr = std::make_unique<SimpleCubic>(N, E_F, debye);
-        }
-        else if (name == fcc_name) {
-            dos_ptr = std::make_unique<FCC>(N, E_F, debye);
-        }
-        else if (name == bcc_name) {
-            dos_ptr = std::make_unique<BCC>(N, E_F, debye);
-        }
-        else if (name == honeycomb_name) {
-            dos_ptr = std::make_unique<HoneyComb>(N, E_F, debye);
-        }
-        else if (name.rfind(single_peak_name, 0) == 0) {
-            std::string peak_weight_str = name.substr(single_peak_name.length());
-            // std::isdigit does not seem to work for some reason unbeknownst to me
-            if (peak_weight_str.empty() || !std::all_of(peak_weight_str.begin(), peak_weight_str.end(), ::isdigit))
-                throw std::invalid_argument("For single_peak, please provide peak weight as integer (understood as percent) after underscore, e.g. 'single_peak50'");
-            dos_ptr = std::make_unique<SinglePeak>(N, E_F, debye, std::stoi(peak_weight_str));
-        }
-        else if (name.rfind(double_peak_name, 0) == 0) {
-            std::string peak_weight_str = name.substr(double_peak_name.length());
-            // std::isdigit does not seem to work for some reason unbeknownst to me
-            if (peak_weight_str.empty() || !std::all_of(peak_weight_str.begin(), peak_weight_str.end(), ::isdigit))
-                throw std::invalid_argument("For double_peak, please provide peak weight as integer (understood as percent) after underscore, e.g. 'double_peak50'");
-            dos_ptr = std::make_unique<DoublePeak>(N, E_F, debye, std::stoi(peak_weight_str));
-        }
-        else {
-            throw std::invalid_argument("DOS '" + name + "' not recognized!");
-        }
-
+    if (dos_ptr)
         return dos_ptr->get_dos();
+
+    if (name.rfind(free_electrons_name, 0) == 0) {
+        std::string dimension_str = name.substr(free_electrons_name.length());
+        // std::isdigit does not seem to work for some reason unbeknownst to me
+        if (dimension_str.empty() || !std::all_of(dimension_str.begin(), dimension_str.end(), ::isdigit))
+            throw std::invalid_argument(
+                "For free_electrons, please provide dimension as integer after underscore, e.g. 'free_electrons3'");
+
+        dos_ptr = std::make_unique<FreeElectrons>(N, FREE_3D_MAX_ENERGY, std::stoi(dimension_str), E_F, debye);
+    } else if (name == sc_name) {
+        dos_ptr = std::make_unique<SimpleCubic>(N, E_F, debye);
+    } else if (name == fcc_name) {
+        dos_ptr = std::make_unique<FCC>(N, E_F, debye);
+    } else if (name == bcc_name) {
+        dos_ptr = std::make_unique<BCC>(N, E_F, debye);
+    } else if (name == honeycomb_name) {
+        dos_ptr = std::make_unique<HoneyComb>(N, E_F, debye);
+    } else if (name.rfind(single_peak_name, 0) == 0) {
+        std::string peak_weight_str = name.substr(single_peak_name.length());
+        // std::isdigit does not seem to work for some reason unbeknownst to me
+        if (peak_weight_str.empty() || !std::all_of(peak_weight_str.begin(), peak_weight_str.end(), ::isdigit))
+            throw std::invalid_argument(
+                "For single_peak, please provide peak weight as integer (understood as percent) after underscore, e.g. "
+                "'single_peak50'");
+        dos_ptr = std::make_unique<SinglePeak>(N, E_F, debye, std::stoi(peak_weight_str));
+    } else if (name.rfind(double_peak_name, 0) == 0) {
+        std::string peak_weight_str = name.substr(double_peak_name.length());
+        // std::isdigit does not seem to work for some reason unbeknownst to me
+        if (peak_weight_str.empty() || !std::all_of(peak_weight_str.begin(), peak_weight_str.end(), ::isdigit))
+            throw std::invalid_argument(
+                "For double_peak, please provide peak weight as integer (understood as percent) after underscore, e.g. "
+                "'double_peak50'");
+        dos_ptr = std::make_unique<DoublePeak>(N, E_F, debye, std::stoi(peak_weight_str));
+    } else {
+        throw std::invalid_argument("DOS '" + name + "' not recognized!");
     }
 
-    std::vector<double> Selector::get_raw_dos() const
-    {
-        std::vector<double> ret(this->dos_ptr->get_dos());
-        for(int i = 0; i < std::ssize(ret); ++i) {
-            ret[i] /= this->dos_ptr->get_energies().get_dE(i);
-        }
-        return ret;
-    }
-
-    double Selector::average_in_range(double low, double up) const
-    {
-        int N_low = dos_ptr->get_energies().energy_to_index(low);
-        int N_up  = dos_ptr->get_energies().energy_to_index(up);
-
-        const double avg{ std::reduce(dos_ptr->get_dos().begin() + N_low, dos_ptr->get_dos().begin() + N_up, double{}) / (up - low) };
-        std::cout << "Average DOS in range = " << avg << std::endl;
-        return avg;
-    }
+    return dos_ptr->get_dos();
 }
+
+std::vector<double> Selector::get_raw_dos() const {
+    std::vector<double> ret(this->dos_ptr->get_dos());
+    for (int i = 0; i < std::ssize(ret); ++i) {
+        ret[i] /= this->dos_ptr->get_energies().get_dE(i);
+    }
+    return ret;
+}
+
+double Selector::average_in_range(double low, double up) const {
+    int N_low = dos_ptr->get_energies().energy_to_index(low);
+    int N_up = dos_ptr->get_energies().energy_to_index(up);
+
+    const double avg{std::reduce(dos_ptr->get_dos().begin() + N_low, dos_ptr->get_dos().begin() + N_up, double{}) /
+                     (up - low)};
+    std::cout << "Average DOS in range = " << avg << std::endl;
+    return avg;
+}
+}  // namespace DOS

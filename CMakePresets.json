@@ -20,6 +20,14 @@
     },
 
     {
+      "name": "test",
+      "inherits": "default",
+      "cacheVariables": {
+        "BUILD_TESTING": "ON"
+      }
+    },
+
+    {
       "name": "cascadelake",
       "inherits": "base",
       "binaryDir": "${sourceDir}/build/cascadelake",
@@ -89,6 +97,10 @@
       "configurePreset": "default"
     },
     {
+      "name": "test",
+      "configurePreset": "test"
+    },
+    {
       "name": "cascadelake",
       "configurePreset": "cascadelake"
     },
@@ -115,6 +127,22 @@
     {
       "name": "debug_ed",
       "configurePreset": "debug_ed"
+    }
+  ],
+  "testPresets": [
+    {
+      "name": "test",
+      "configurePreset": "test",
+      "environment": {
+        "PYTHONUNBUFFERED": "1"
+      },
+      "output": {
+        "verbosity": "verbose",
+        "outputOnFailure": true
+      },
+      "execution": {
+        "noTestsAction": "error"
+      }
     }
   ]
 }

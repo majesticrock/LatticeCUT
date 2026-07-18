@@ -1,90 +1,91 @@
 #pragma once
+#include "../DOS/EnergyRanges.hpp"
+#include "../DOS/Selector.hpp"
 #include "GlobalDefinitions.hpp"
 #include "ModelAttributes.hpp"
-#include "../DOS/Selector.hpp"
-#include "../DOS/EnergyRanges.hpp"
 
-#include <string>
-#include <map>
-
-#include <mrock/utility/InputFileReader.hpp>
 #include <mrock/symbolic_operators/WickTerm.hpp>
+#include <mrock/utility/InputFileReader.hpp>
 
-//#define BCS_INTERACTION
+#include <algorithm>
+#include <cmath>
+#include <complex>
+#include <map>
+#include <string>
+#include <vector>
+
+// #define BCS_INTERACTION
 
 namespace LatticeCUT {
-    struct DOSModel {
-        typedef Eigen::VectorXd ParameterVector;
+struct DOSModel {
+    typedef Eigen::VectorXd ParameterVector;
 
-        const l_float phonon_coupling_in; ///< g_in
-        const l_float local_interaction; ///< in units of W
-        const l_float fermi_energy; ///< in units of W
-        const l_float omega_debye_in; ///< fraction of the bandwidth in which the phonon_coupling is active
-        const int N; ///< Number of discretization points
-        
-        DOS::Selector selector;
-        const std::string dos_name;
-        const std::vector<l_float>& density_of_states;
-        const DOS::EnergyRanges& energies;
-        const l_float omega_debye; ///< used for calculations
-        const l_float phonon_coupling; ///< g_in / \int_(E_F-omega_D)^(E_F+omega_D) rho(E) dE
-        const l_float local_interaction_energy_units; ///< g_in / \int_(E_F-omega_D)^(E_F+omega_D) rho(E) dE
-        l_float beta; ///< inverse temperature in units of W
-        l_float chemical_potential; ///< chemical potential in units of W
-        l_float filling_at_zero_temp; ///< filling at zero temperature
+    const l_float phonon_coupling_in;  ///< g_in
+    const l_float local_interaction;   ///< in units of W
+    const l_float fermi_energy;        ///< in units of W
+    const l_float omega_debye_in;      ///< fraction of the bandwidth in which the phonon_coupling is active
+    const int N;                       ///< Number of discretization points
 
-        ModelAttributes<l_float> Delta;
+    DOS::Selector selector;
+    const std::string dos_name;
+    const std::vector<l_float>& density_of_states;
+    const DOS::EnergyRanges& energies;
+    const l_float omega_debye;                     ///< used for calculations
+    const l_float phonon_coupling;                 ///< g_in / \int_(E_F-omega_D)^(E_F+omega_D) rho(E) dE
+    const l_float local_interaction_energy_units;  ///< g_in / \int_(E_F-omega_D)^(E_F+omega_D) rho(E) dE
+    l_float beta;                                  ///< inverse temperature in units of W
+    l_float chemical_potential;                    ///< chemical potential in units of W
+    l_float filling_at_zero_temp;                  ///< filling at zero temperature
 
-        DOSModel(mrock::utility::InputFileReader& input);
+    ModelAttributes<l_float> Delta;
 
-        void iteration_step(const ParameterVector& initial_values, ParameterVector& result);
-        
-        l_float sc_expectation_value_index(int k) const;
-        l_float occupation_index(int k) const;
+    DOSModel(mrock::utility::InputFileReader& input);
 
-        inline l_float single_particle_energy(int k) const {
-            return energies.index_to_energy(k) - chemical_potential;
-        }
+    void iteration_step(const ParameterVector& initial_values, ParameterVector& result);
 
-        inline l_float quasiparticle_energy_index(int k) const
-        {
-            return sqrt(single_particle_energy(k) * single_particle_energy(k) + std::norm(Delta[k]));
-        }
+    l_float sc_expectation_value_index(int k) const;
+    l_float occupation_index(int k) const;
 
-        inline int phonon_lower_bound(l_float eps) const {
+    inline l_float single_particle_energy(int k) const { return energies.index_to_energy(k) - chemical_potential; }
+
+    inline l_float quasiparticle_energy_index(int k) const {
+        return std::sqrt(single_particle_energy(k) * single_particle_energy(k) + std::norm(Delta[k]));
+    }
+
+    inline int phonon_lower_bound(l_float eps) const {
 #ifdef BCS_INTERACTION
-            return energies.energy_to_index(fermi_energy - omega_debye);
+        return energies.energy_to_index(fermi_energy - omega_debye);
 #else
-            return std::max(energies.energy_to_index(eps - omega_debye), int{});
+        return std::max(energies.energy_to_index(eps - omega_debye), int{});
 #endif
-        }
-        inline int phonon_upper_bound(l_float eps) const {
+    }
+    inline int phonon_upper_bound(l_float eps) const {
 #ifdef BCS_INTERACTION
-            return energies.energy_to_index(fermi_energy + omega_debye);
+        return energies.energy_to_index(fermi_energy + omega_debye);
 #else
-            return std::min(energies.energy_to_index(eps + omega_debye), N - 1);
+        return std::min(energies.energy_to_index(eps + omega_debye), N - 1);
 #endif
-        }
+    }
 
-        l_float compute_filling(const l_float mu) const;
-        
-        l_float compute_coefficient(mrock::symbolic_operators::Coefficient const& coeff, int first, int second) const;
+    l_float compute_filling(const l_float mu) const;
 
-        const std::map<mrock::symbolic_operators::OperatorType, std::vector<l_float>>& get_expectation_values() const;
+    l_float compute_coefficient(mrock::symbolic_operators::Coefficient const& coeff, int first, int second) const;
 
-        l_float delta_max() const;
+    const std::map<mrock::symbolic_operators::OperatorType, std::vector<l_float>>& get_expectation_values() const;
 
-        l_float true_gap() const;
+    l_float delta_max() const;
 
-        std::string info() const;
-        std::string to_folder() const;
+    l_float true_gap() const;
 
-    private:
-		mutable std::map<mrock::symbolic_operators::OperatorType, std::vector<l_float>> _expecs;
-        // In system exhibiting particle-hole symmetry, the Fermi level at T=0 does not change
-        // if the interaction strength g is changed.
-        // Thus, if we only care about T=0 and have this symmetry, we can reduce the numerical cost
-        // associated with the self-consistency loop
-        const bool guaranteed_E_F{};
-    };
-}
+    std::string info() const;
+    std::string to_folder() const;
+
+private:
+    mutable std::map<mrock::symbolic_operators::OperatorType, std::vector<l_float>> _expecs;
+    // In system exhibiting particle-hole symmetry, the Fermi level at T=0 does not change
+    // if the interaction strength g is changed.
+    // Thus, if we only care about T=0 and have this symmetry, we can reduce the numerical cost
+    // associated with the self-consistency loop
+    const bool guaranteed_E_F{};
+};
+}  // namespace LatticeCUT

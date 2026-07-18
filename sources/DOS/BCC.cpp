@@ -1,29 +1,30 @@
 #include "BCC.hpp"
-#include <complex>
-#include <boost/math/special_functions/ellint_1.hpp>
+
+#include "EnergyRanges.hpp"
+
 #include <mrock/utility/Numerics/hypergeometric_2F1.hpp>
-#include <cassert>
+
+#include <complex>
+#include <vector>
 
 namespace DOS {
-    using dos_complex = std::complex<_internal_precision>;
-    constexpr double factor_range = 10;
+using dos_complex = std::complex<_internal_precision>;
+constexpr double factor_range = 10;
 
-    BCC::BCC(std::size_t N, double E_F, double debye)
-        : Base(N, -1., 1., E_F, factor_range * debye)
-    { }
+BCC::BCC(std::size_t N, double E_F, double debye) : Base(N, -1., 1., E_F, factor_range * debye) {}
 
-    dos_complex elliptical_integral(dos_complex k) {
-        return one_half * LONG_PI  * mrock::utility::Numerics::hypergeometric_2F1(one_half, one_half, _internal_precision{1}, k);
-    }
+dos_complex elliptical_integral(dos_complex k) {
+    return one_half * LONG_PI *
+           mrock::utility::Numerics::hypergeometric_2F1(one_half, one_half, _internal_precision{1}, k);
+}
 
-    // https://www.jstor.org/stable/52609
-    void BCC::compute()
-    {
-        const _internal_precision ratio = 2. / _energies.total_range;
-        for(int k = 0; k < std::ssize(_dos); ++k) {
-            const dos_complex energy = dos_complex{ratio * _energies.index_to_energy(k), 1e-15};
-            const dos_complex ell  = elliptical_integral( one_half - one_half * std::sqrt(1.L - 1.L / (energy * energy)) );
-            _dos[k] = -ratio * _energies.get_dE(k) * FOUR_OVER_PI_SQR * LONG_1_PI * (ell * ell / energy).imag();
-        }
+// https://www.jstor.org/stable/52609
+void BCC::compute() {
+    const _internal_precision ratio = 2. / _energies.total_range;
+    for (int k = 0; k < std::ssize(_dos); ++k) {
+        const dos_complex energy = dos_complex{ratio * _energies.index_to_energy(k), 1e-15};
+        const dos_complex ell = elliptical_integral(one_half - one_half * std::sqrt(1.L - 1.L / (energy * energy)));
+        _dos[k] = -ratio * _energies.get_dE(k) * FOUR_OVER_PI_SQR * LONG_1_PI * (ell * ell / energy).imag();
     }
 }
+}  // namespace DOS

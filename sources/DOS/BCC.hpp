@@ -1,6 +1,8 @@
 #pragma once
 #include "Base.hpp"
 
+#include <cstddef>
+
 /**
  * DOS formula from Exact evaluation of the body centred cubic lattice Green function, G S Joyce
  * https://iopscience.iop.org/article/10.1088/0022-3719/4/12/008/meta
@@ -9,10 +11,10 @@
  */
 
 namespace DOS {
-    struct BCC : public Base {
-        BCC(std::size_t N, double E_F, double debye);
+struct BCC : public Base {
+    BCC(std::size_t N, double E_F, double debye);
 
-    protected:
-        void compute() final;
-    };
-}
+protected:
+    void compute() final;
+};
+}  // namespace DOS
