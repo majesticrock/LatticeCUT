@@ -20,14 +20,6 @@
     },
 
     {
-      "name": "test",
-      "inherits": "default",
-      "cacheVariables": {
-        "BUILD_TESTING": "ON"
-      }
-    },
-
-    {
       "name": "cascadelake",
       "inherits": "base",
       "binaryDir": "${sourceDir}/build/cascadelake",
@@ -60,6 +52,14 @@
       "binaryDir": "${sourceDir}/build/default_ed",
       "cacheVariables": {
         "LATTICE_CUT_FULL_DIAG": "ON"
+      }
+    },
+
+    {
+      "name": "test",
+      "inherits": "default_ed",
+      "cacheVariables": {
+        "BUILD_TESTING": "ON"
       }
     },
 
