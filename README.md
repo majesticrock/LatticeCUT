@@ -25,7 +25,7 @@ https://doi.org/10.48550/arXiv.2605.20059
 - [recommended] CMake 3.30 or newer (tested with version 3.31.8)  https://cmake.org/
 - [optional] Intel MKL for BLAS and LAPACK (tested with version 2025.2.1) https://www.intel.com/content/www/us/en/developer/tools/oneapi/onemkl.html 
 
-- the mrock library located in `../../PhdUtility/`.
+- the mrock library located in `../../PhdUtility/` (must be installed either to a standard CMake location or to `~/usr/local/` or to `../../.mrock/include/` for plug-and-play).
 - Before executing the program, make sure to build and run `FermionCommute` in `../FermionCommute/`.
 
 
