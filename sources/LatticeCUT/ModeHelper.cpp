@@ -44,7 +44,7 @@
 #endif
 
 namespace LatticeCUT {
-int ModeHelper::select_epsilon(mrock::symbolic_operators::Momentum const& momentum, int k, int l, int q) const {
+int ModeHelper::select_epsilon(mrock::symbolic_operators::Momentum const& momentum, int k, int l, int K) const {
     assert(momentum.size() == 1U &&
            "There should not be an addition of momenta, so that a momentum can be easily associated with an energy!");
     assert(std::abs(momentum.front().factor) == 1 && "The momentum should either come with + or - and nothing more!");
@@ -53,8 +53,8 @@ int ModeHelper::select_epsilon(mrock::symbolic_operators::Momentum const& moment
             return k;
         case 'l':
             return l;
-        case 'q':
-            return q;
+        case 'K':
+            return K;
         default:
             throw std::runtime_error("Momentum not recognized! " + momentum.front().name);
     }
@@ -73,10 +73,10 @@ l_float ModeHelper::get_expectation_value(mrock::symbolic_operators::WickOperato
 }
 
 l_float ModeHelper::compute_phonon_sum(const mrock::symbolic_operators::WickTerm& term, int k) const {
-    const int q_dependend = term.which_operator_depends_on('q');
-    mrock::symbolic_operators::WickOperator const* const summed_op = &(term.operators[q_dependend]);
+    const int K_dependend = term.which_operator_depends_on('K');
+    mrock::symbolic_operators::WickOperator const* const summed_op = &(term.operators[K_dependend]);
     mrock::symbolic_operators::WickOperator const* const other_op =
-        term.is_bilinear() ? nullptr : &(term.operators[q_dependend == 0]);
+        term.is_bilinear() ? nullptr : &(term.operators[K_dependend == 0]);
     l_float value{};
 
     const l_float energy_k = model->energies.index_to_energy(k);
@@ -96,10 +96,10 @@ l_float ModeHelper::compute_phonon_sum(const mrock::symbolic_operators::WickTerm
 }
 
 l_float ModeHelper::compute_local_sum(const mrock::symbolic_operators::WickTerm& term, int k) const {
-    const int q_dependend = term.which_operator_depends_on('q');
-    mrock::symbolic_operators::WickOperator const* const summed_op = &(term.operators[q_dependend]);
+    const int K_dependend = term.which_operator_depends_on('K');
+    mrock::symbolic_operators::WickOperator const* const summed_op = &(term.operators[K_dependend]);
     mrock::symbolic_operators::WickOperator const* const other_op =
-        term.is_bilinear() ? nullptr : &(term.operators[q_dependend == 0]);
+        term.is_bilinear() ? nullptr : &(term.operators[K_dependend == 0]);
     l_float value{};
 
     for (int q = 0; q < model->N; ++q) {

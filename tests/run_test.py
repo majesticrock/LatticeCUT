@@ -18,7 +18,7 @@ exe = Path(args.exe)
 config = Path(args.config)
 plot_script = Path(args.plot_script)
 
-print(f"Running computation for ContinuumSystem:")
+print(f"Running computation for LatticeCUT:")
 print(f"  executable : {exe}")
 print(f"  config     : {config}")
 
