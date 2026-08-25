@@ -230,9 +230,15 @@ def create_plot(name):
 
         ax.set_ylim(0, 0.7)
         ax.legend()
+        ax.set_xlim(
+            np.min(omegas.real),
+            np.max(omegas.real)
+        )
 
     fig.suptitle(f"LatticeCUT: {name}")
     fig.savefig(f"test_result_{name}.pdf")
+    if "--show" in sys.argv[2:]:
+        plt.show()
 
 
 # Command-line interface:
