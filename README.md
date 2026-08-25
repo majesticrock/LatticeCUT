@@ -1,6 +1,6 @@
 # LatticeCUT
 
-With this project, one may study the effect of the effective electron-electron interaction dervied via a continuous unitary transformation on lattice systems.
+With this project, one may study the effect of the effective electron-electron interaction derived via a continuous unitary transformation on lattice systems.
 The code was used to compute the mean-field data and collective excitation spectra presented in 
 
 Enhanced Superconductivity in Proximity to Peaks in Densities of States
