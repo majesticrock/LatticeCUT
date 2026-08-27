@@ -48,7 +48,7 @@ int ModeHelper::select_epsilon(mrock::symbolic_operators::Momentum const& moment
     assert(momentum.size() == 1U &&
            "There should not be an addition of momenta, so that a momentum can be easily associated with an energy!");
     assert(std::abs(momentum.front().factor) == 1 && "The momentum should either come with + or - and nothing more!");
-    switch (static_cast<char>(momentum.front().name)) {
+    switch (static_cast<unsigned char>(momentum.front().name)) {
         case 'k':
             return k;
         case 'l':
