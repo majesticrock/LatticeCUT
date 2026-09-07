@@ -16,6 +16,14 @@
 #include <stdexcept>
 #include <utility>
 
+#ifdef BCS_INTERACTION
+#define BCS_SKIP(x) if (energy_k < fermi_energy + omega_debye && energy_k > fermi_energy - omega_debye) { \
+    x \
+    }
+#else
+#define BCS_SKIP(x) x
+#endif
+
 namespace LatticeCUT {
 DOSModel::DOSModel(mrock::utility::InputFileReader& input)
     : phonon_coupling_in{input.getDouble("phonon_coupling")},
@@ -136,16 +144,19 @@ void DOSModel::iteration_step(const ParameterVector& initial_values, ParameterVe
 
 #pragma omp parallel for
     for (int k = 0; k < loop_bound; k++) {
-        const l_float energy_k = energies.index_to_energy(k);
         l_float __part{};
-#ifdef BCS_INTERACTION
-        if (energy_k < fermi_energy + omega_debye && energy_k > fermi_energy - omega_debye) {
-#endif
-            for (int l = phonon_lower_bound(energy_k); l <= phonon_upper_bound(energy_k); ++l) {
-                __part -= _expecs[mrock::symbolic_operators::OperatorType::SC][l >= loop_bound ? N - 1 - l : l] *
+
+#ifndef LW_INTERACTION
+        const l_float energy_k = energies.index_to_energy(k);
+        // If BCS_INTERACTION is defined, this code segment is wrapped in an if that abuses the simply structure of the interaction
+        BCS_SKIP(for (int l = phonon_lower_bound(energy_k); l <= phonon_upper_bound(energy_k); ++l) {
+            __part -= _expecs[mrock::symbolic_operators::OperatorType::SC][l >= loop_bound ? N - 1 - l : l] *
                           density_of_states[l];
-            }
-#ifdef BCS_INTERACTION
+        })
+#else
+        for (int l = 0; l < N; l++) {
+            __part -= _expecs[mrock::symbolic_operators::OperatorType::SC][l >= loop_bound ? N - 1 - l : l] * density_of_states[l]
+                    * LW_interaction_kernel(k, l);
         }
 #endif
         result(k) = phonon_coupling * __part;

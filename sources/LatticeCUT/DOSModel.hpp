@@ -14,7 +14,8 @@
 #include <string>
 #include <vector>
 
-// #define BCS_INTERACTION
+//#define BCS_INTERACTION
+#define LW_INTERACTION
 
 namespace LatticeCUT {
 struct DOSModel {
@@ -65,6 +66,14 @@ struct DOSModel {
 #else
         return std::min(energies.energy_to_index(eps + omega_debye), N - 1);
 #endif
+    }
+
+    inline l_float LW_interaction_kernel(const int k, const int l) const noexcept
+    {
+        return omega_debye * omega_debye / (
+                        (energies.index_to_energy(k) - energies.index_to_energy(l))*(energies.index_to_energy(k) - energies.index_to_energy(l)) 
+                        + omega_debye*omega_debye
+                    );
     }
 
     l_float compute_filling(const l_float mu) const;

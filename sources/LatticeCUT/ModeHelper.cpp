@@ -79,15 +79,24 @@ l_float ModeHelper::compute_phonon_sum(const mrock::symbolic_operators::WickTerm
         term.is_bilinear() ? nullptr : &(term.operators[K_dependend == 0]);
     l_float value{};
 
+#ifndef LW_INTERACTION
     const l_float energy_k = model->energies.index_to_energy(k);
+#endif
 #ifdef BCS_INTERACTION
     if (energy_k > model->fermi_energy + model->omega_debye || energy_k < model->fermi_energy - model->omega_debye) {
         return l_float{};
     }
 #endif
+#ifndef LW_INTERACTION
     for (int q = model->phonon_lower_bound(energy_k); q <= model->phonon_upper_bound(energy_k); ++q) {
         value += this->get_expectation_value(*summed_op, q) * model->density_of_states[q];
     }
+#else
+    for (int q = 0; q < model->N; ++q) {
+        value += this->get_expectation_value(*summed_op, q) * model->density_of_states[q]
+            * model->LW_interaction_kernel(k, q);
+    }
+#endif
     if (other_op) {
         value *= this->get_expectation_value(*other_op, k);
     }

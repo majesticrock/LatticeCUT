@@ -2,8 +2,8 @@
 
 # Set architecture: "icelake" or "cascadelake"
 arch="cascadelake"
-LATTICE_TYPE="bcc"
-EXTRA="--exclude=node60"
+LATTICE_TYPE="sc"
+#EXTRA="--exclude=node60"
 
 input_file="params/for_auto.txt"
 readarray -t NEW_VALUES < "${input_file}"
