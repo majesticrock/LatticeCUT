@@ -70,9 +70,9 @@ struct DOSModel {
 
     inline l_float LW_interaction_kernel(const int k, const int l) const noexcept
     {
+        const double delta_eps = energies.index_to_energy(k) - energies.index_to_energy(l);
         return omega_debye * omega_debye / (
-                        (energies.index_to_energy(k) - energies.index_to_energy(l))*(energies.index_to_energy(k) - energies.index_to_energy(l)) 
-                        + omega_debye*omega_debye
+                        delta_eps * delta_eps + omega_debye * omega_debye
                     );
     }
 

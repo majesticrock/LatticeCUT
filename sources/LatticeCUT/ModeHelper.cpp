@@ -203,11 +203,11 @@ void ModeHelper::fill_block_M(int i, int j) {
                         continue;
                     }
                 }
-                diag_buffer += computeTerm(term, k + loop_offset, k + loop_offset);
+                diag_buffer += compute_term(term, k + loop_offset, k + loop_offset);
             } else {
                 for (int l = 0; l < loop_end; ++l) {
                     M(i * loop_end + k, j * loop_end + l) +=
-                        iEoM_offdiag * computeTerm(term, k + loop_offset, l + loop_offset);
+                        iEoM_offdiag * compute_term(term, k + loop_offset, l + loop_offset);
                 }
             }
         }
@@ -220,7 +220,7 @@ void ModeHelper::fill_block_N(int i, int j) {
         for (const auto& term : wicks.N[number_of_basis_terms * j + i]) {
             if (!term.delta_momenta.empty()) {
                 // only k=l and k=-l should occur. Additionally, only the magntitude should matter
-                N(i * loop_end + k, j * loop_end + k) += computeTerm(term, k + loop_offset, k + loop_offset);
+                N(i * loop_end + k, j * loop_end + k) += compute_term(term, k + loop_offset, k + loop_offset);
             } else {
                 throw std::runtime_error("Offdiagonal term in N!");
             }
@@ -229,7 +229,7 @@ void ModeHelper::fill_block_N(int i, int j) {
     }
 }
 
-l_float ModeHelper::computeTerm(const mrock::symbolic_operators::WickTerm& term, int k, int l) const {
+l_float ModeHelper::compute_term(const mrock::symbolic_operators::WickTerm& term, int k, int l) const {
     if (term.sums.momenta.empty()) {
         l_float value{static_cast<l_float>(term.multiplicity)};
 

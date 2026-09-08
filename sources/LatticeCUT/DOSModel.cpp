@@ -148,15 +148,19 @@ void DOSModel::iteration_step(const ParameterVector& initial_values, ParameterVe
 
 #ifndef LW_INTERACTION
         const l_float energy_k = energies.index_to_energy(k);
-        // If BCS_INTERACTION is defined, this code segment is wrapped in an if that abuses the simply structure of the interaction
-        BCS_SKIP(for (int l = phonon_lower_bound(energy_k); l <= phonon_upper_bound(energy_k); ++l) {
+#ifdef BCS_INTERACTION
+        if (energy_k >= fermi_energy + omega_debye || energy_k <= fermi_energy - omega_debye) {
+            continue;
+        }
+#endif
+        for (int l = phonon_lower_bound(energy_k); l <= phonon_upper_bound(energy_k); ++l) {
             __part -= _expecs[mrock::symbolic_operators::OperatorType::SC][l >= loop_bound ? N - 1 - l : l] *
                           density_of_states[l];
-        })
+        }
 #else
         for (int l = 0; l < N; l++) {
-            __part -= _expecs[mrock::symbolic_operators::OperatorType::SC][l >= loop_bound ? N - 1 - l : l] * density_of_states[l]
-                    * LW_interaction_kernel(k, l);
+            __part -= _expecs[mrock::symbolic_operators::OperatorType::SC][l >= loop_bound ? N - 1 - l : l] 
+                        * density_of_states[l] * LW_interaction_kernel(k, l);
         }
 #endif
         result(k) = phonon_coupling * __part;
@@ -237,6 +241,9 @@ l_float DOSModel::compute_coefficient(mrock::symbolic_operators::Coefficient con
     if (coeff.name == "\\epsilon_0") {
         return single_particle_energy(first);
     } else if (coeff.name == "g") {
+#ifdef LW_INTERACTION
+        return phonon_coupling * LW_interaction_kernel(first, second);
+#else
 #ifdef BCS_INTERACTION
         if (energies.index_to_energy(first) < fermi_energy - omega_debye ||
             energies.index_to_energy(first) > fermi_energy + omega_debye)
@@ -251,6 +258,7 @@ l_float DOSModel::compute_coefficient(mrock::symbolic_operators::Coefficient con
         }
 #endif
         return phonon_coupling;
+#endif
     } else if (coeff.name == "U") {
         return local_interaction_energy_units;
     } else {

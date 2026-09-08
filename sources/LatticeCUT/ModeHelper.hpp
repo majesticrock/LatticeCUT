@@ -36,7 +36,7 @@ private:
     void fill_block_M(int i, int j);
     void fill_block_N(int i, int j);
 
-    l_float computeTerm(const mrock::symbolic_operators::WickTerm& term, int k, int l) const;
+    l_float compute_term(const mrock::symbolic_operators::WickTerm& term, int k, int l) const;
 
     int select_epsilon(mrock::symbolic_operators::Momentum const& momentum, int k, int l, int q = int{}) const;
     l_float get_expectation_value(mrock::symbolic_operators::WickOperator const& op, int k) const;
